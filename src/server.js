@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
 const { CONFIG } = require('./config/config');
+const { UserRouter } = require('./routes');
 
 const app = express();
 
@@ -18,6 +19,6 @@ app.use(
   })
 );
 
-// app.use('/users', UsersRouter);
+app.use('/users', UserRouter);
 
 module.exports = app;
