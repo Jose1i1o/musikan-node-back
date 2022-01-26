@@ -19,6 +19,6 @@ app.use(
   })
 );
 
-app.use('/users', UserRouter);
+app.use('/user', UserRouter);
 
 module.exports = app;
