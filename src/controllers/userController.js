@@ -3,7 +3,7 @@ const db = require('../models');
 async function login(req, res, next) {
   const { email } = req.body;
   try {
-    const foundUser = await db.User.findOne({
+    await db.User.findOne({
       email: email,
     })
       .select()
@@ -11,29 +11,30 @@ async function login(req, res, next) {
       .exec();
 
     res.status(200).send({
-      message: 'user exists',
-      user: foundUser,
+      message: 'Logged in',
     });
   } catch (error) {
-    next(error);
+    res.status(500).send({
+      message: 'User not authorized',
+    });
   }
 }
 
 async function register(req, res, next) {
-  const { email, password } = req.body;
+  const { email } = req.body;
 
   try {
-    const newUser = await db.User.create({
+    await db.User.create({
       email: email,
-      password: password,
     });
 
     res.status(201).send({
-      message: 'created user',
-      user: newUser,
+      message: 'User created',
     });
   } catch (error) {
-    next(error);
+    res.status(500).send({
+      message: 'The email already exist. Please use a different email',
+    });
   }
 }
 
