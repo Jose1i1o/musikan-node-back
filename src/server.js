@@ -3,7 +3,7 @@ const { json, urlencoded } = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
-const CONFIG = require('./config/config');
+const config = require('./config');
 
 const { 
   UserRouter,
@@ -19,7 +19,7 @@ app.use(urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: CONFIG.development.client.URL,
+    origin: config.development.client.URL,
   })
 );
 
