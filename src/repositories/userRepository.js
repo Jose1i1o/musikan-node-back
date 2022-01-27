@@ -8,6 +8,9 @@ class UserRepository {
   findOne(query) {
     return normalizeDbQuery(db.User.findOne(query, '-__v'));
   }
+  // findOneAndUpdate(query) {
+  //   return normalizeDbQuery(db.User.findOneAndUpdate(query));
+  // }
 }
 
 module.exports = new UserRepository();
