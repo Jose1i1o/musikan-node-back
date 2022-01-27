@@ -3,7 +3,7 @@ const { json, urlencoded } = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
-const { CONFIG } = require('./config/config');
+const CONFIG = require('./config/config');
 
 const { 
   UserRouter,

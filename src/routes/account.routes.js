@@ -7,9 +7,7 @@ const AccountRouter = Router();
 const upload = multer();
 
 AccountRouter.put(
-    '/',
-    upload.single('avatar'),
-    accountController.updateProfile
+    '/update/${_id}', accountController.updateUserProfile
 );
 
 

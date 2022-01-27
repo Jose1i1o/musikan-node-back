@@ -1,47 +1,47 @@
 const dotenv = require('dotenv')
 const logger = require('loglevel')
 
-dotenv.config();
 
 logger.enableAll();
+dotenv.config();
 
-const {
-  PORT,
-  CLIENT_URL,
-  DB_URL,
-  CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET,
-  CLOUDINARY_API_NAME,
-} = process.env;
+// var {
+//   PORT,
+//   CLIENT_URL,
+//   DB_URL,
+//   cloudinary_api_name,
+//   cloudinary_api_key,
+//   cloudinary_api_secret,
+// } = process.env;
 
 const CONFIG = {
-    development: {
-      app: {
-        PORT: PORT || 4000,
-      },
-      client: {
-        URL: CLIENT_URL || 'http://localhost:3000',
-      },
-      logger: {
-        warn: logger.warn,
-        info: logger.info,
-        error: logger.error,
-        trace: logger.trace,
-        debug: logger.debug,
-      },
-      db: {
-        url: DB_URL,
-      },
-      cloudinary: {
-        key: CLOUDINARY_API_KEY,
-        name: CLOUDINARY_API_NAME,
-        secret: CLOUDINARY_API_SECRET,
-      },
-      firebase: {
+  development: {
+    app: {
+      PORT: process.env.PORT || 4000,
+    },
+    client: {
+      URL: process.env.CLIENT_URL || 'http://localhost:3000',
+    },
+    logger: {
+      warn: logger.warn,
+      info: logger.info,
+      error: logger.error,
+      trace: logger.trace,
+      debug: logger.debug,
+    },
+    db: {
+      url: process.env.DB_URL,
+    },
+    cloudinary: {
+      key: process.env.CLOUDINARY_API_KEY,
+      secret: process.env.CLOUDINARY_API_SECRET,
+      name: process.env.CLOUDINARY_API_NAME,
+    },
+    firebase: {
     },
   }
 }
 
-module.exports = { 
+module.exports = {
   config: CONFIG
  }

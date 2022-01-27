@@ -100,5 +100,5 @@ async function updateUserProfile(req, res, next) {
 }
 
 module.exports = { 
-    updateUserProfile: updateUserProfile,
+    updateUserProfile,
 };
