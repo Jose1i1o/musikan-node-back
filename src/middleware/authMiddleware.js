@@ -8,6 +8,11 @@ async function authMiddleware(req, res, next) {
   try {
     const verifiedToken = await verifyIdToken(token);
     if (verifiedToken) {
+      const { uid, email } = verifiedToken;
+      req.user = {
+        _id: uid,
+        email: email,
+      };
       next();
     }
   } catch (err) {
