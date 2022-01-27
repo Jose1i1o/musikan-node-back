@@ -8,7 +8,9 @@ async function authMiddleware(req, res, next) {
   try {
     const verifiedToken = await verifyIdToken(token);
     if (verifiedToken) {
+      console.log(verifiedToken);
       const { uid, email } = verifiedToken;
+
       req.user = {
         _id: uid,
         email: email,
