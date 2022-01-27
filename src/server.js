@@ -3,12 +3,9 @@ const { json, urlencoded } = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
-const config = require('./config');
+const { config } = require('./config');
 
-const { 
-  UserRouter,
-  AccountRouter,
-} = require('./routes');
+const { UserRouter, AccountRouter } = require('./routes');
 
 const app = express();
 
