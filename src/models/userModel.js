@@ -21,8 +21,15 @@ const UserSchema = new mongoose.Schema(
         message: (props) => `The email ${props.value} is not valid`,
       },
     },
+    profilePicture: {
+      type: String,
+      default: 'https://res.cloudinary.com/dmkdsujzh/image/upload/v1643271691/cld-sample.jpg',
+    },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    strict: false,
+  }
 );
 
 const UserModel = new mongoose.model('users', UserSchema);
