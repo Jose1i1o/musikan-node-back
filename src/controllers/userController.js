@@ -1,44 +1,23 @@
-const db = require('../models');
+const { UserRepo } = require('../repositories');
 
-async function login(req, res, next) {
-  const { email } = req.body;
-  try {
-    await db.User.findOne({
-      email: email,
-    })
-      .select()
-      .lean()
-      .exec();
-
-    res.status(200).send({
-      message: 'Logged in',
-    });
-  } catch (error) {
-    res.status(500).send({
-      message: 'User not authorized',
-    });
-  }
-}
-
-async function register(req, res, next) {
-  const { email } = req.body;
+async function signUp(req, res, next) {
+  const { email, _id } = req.body;
 
   try {
-    await db.User.create({
-      email: email,
-    });
+    const foundUser = await UserRepo.findOne({ email: email });
 
+    if (foundUser.error) res.status(400).send({ message: 'User not found' });
+
+    if (foundUser.data)
+      res.status(200).send({ foundUser, message: 'User logged' });
+
+    await UserRepo.create({ _id: _id, email: email });
     res.status(201).send({
       message: 'User created',
     });
-  } catch (error) {
-    res.status(500).send({
-      message: 'The email already exist. Please use a different email',
-    });
+  } catch (err) {
+    next(err);
   }
 }
 
-module.exports = {
-  login: login,
-  register: register,
-};
+module.exports = { signUp };
