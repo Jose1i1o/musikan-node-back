@@ -11,8 +11,8 @@ const {
   DB_URL,
   CLOUDINARY_API_KEY,
   CLOUDINARY_API_SECRET,
-  CLOUDINARY_API_NAME
-}
+  CLOUDINARY_API_NAME,
+} = process.env;
 
 const CONFIG = {
     development: {
@@ -34,8 +34,8 @@ const CONFIG = {
       },
       cloudinary: {
         key: CLOUDINARY_API_KEY,
-        secret: CLOUDINARY_API_SECRET,
         name: CLOUDINARY_API_NAME,
+        secret: CLOUDINARY_API_SECRET,
       },
       firebase: {
     },
@@ -43,5 +43,5 @@ const CONFIG = {
 }
 
 module.exports = { 
-  CONFIG: CONFIG
+  config: CONFIG
  }
