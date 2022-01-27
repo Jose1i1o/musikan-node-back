@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const { CONFIG } = require('./config/config');
 const { UserRouter } = require('./routes');
+const { errorMiddleware } = require('./middleware');
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.use(
     origin: CONFIG.development.client.URL,
   })
 );
+
+app.use(errorMiddleware);
 
 app.use('/user', UserRouter);
 
