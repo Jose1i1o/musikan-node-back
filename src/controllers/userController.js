@@ -47,8 +47,8 @@ async function signOut(req, res, next) {
 
 async function updateUser(req, res, next) {
   try {
-    const id = req.params['id'];
-    const { email, firstName, lastName } = req.body;
+    const { _id } = req.user;
+    const { email, userName } = req.body;
     const mainImage = req.body.profilePicture;
     console.log(mainImage);
 
@@ -59,10 +59,11 @@ async function updateUser(req, res, next) {
       });
 
       const user = await db.User.findByIdAndUpdate(
-        id,
+        _id,
         {
           $set: {
-            // email: email,
+            email: email,
+            userName: userName,
             profilePicture: uploadImage.url,
           },
         },

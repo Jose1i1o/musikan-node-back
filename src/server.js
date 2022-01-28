@@ -5,19 +5,19 @@ const morgan = require('morgan');
 const cors = require('cors');
 const { config } = require('./config');
 
-const { UserRouter, AccountRouter } = require('./routes');
+const { UserRouter } = require('./routes');
 
 const app = express();
 
 app.use(morgan('dev'));
 app.use(helmet());
-app.use(json(
-    {
-        limit: '50mb'
-    }
-));
+app.use(
+  json({
+    limit: '50mb',
+  })
+);
 app.use(urlencoded({ extended: true }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }))
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(
   cors({
@@ -25,8 +25,6 @@ app.use(
   })
 );
 
-
 app.use('/user', UserRouter);
-app.use('/profile', AccountRouter);
 
 module.exports = app;
