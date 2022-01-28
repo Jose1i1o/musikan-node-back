@@ -22,7 +22,7 @@ async function signUp(req, res, next) {
     });
     console.log(newUser);
     res.status(201).send({
-      user: newUser,
+      user: newUser.data,
       message: 'User created',
     });
   } catch (err) {
