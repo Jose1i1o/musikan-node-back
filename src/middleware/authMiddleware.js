@@ -7,12 +7,25 @@ async function authMiddleware(req, res, next) {
 
   try {
     const verifiedToken = await verifyIdToken(token);
+
     if (verifiedToken) {
-      const { uid, email } = verifiedToken;
-      req.user = {
-        _id: uid,
-        email: email,
-      };
+      if (verifiedToken.firebase.sign_in_provider === 'password') {
+        const { uid, email } = verifiedToken;
+
+        req.user = {
+          _id: uid,
+          email: email,
+        };
+      } else {
+        const { uid, email, name } = verifiedToken;
+
+        req.user = {
+          _id: uid,
+          email: email,
+          userName: name,
+        };
+      }
+
       next();
     }
   } catch (err) {
