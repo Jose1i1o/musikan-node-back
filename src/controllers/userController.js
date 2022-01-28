@@ -1,6 +1,7 @@
 const { UserRepo } = require('../repositories');
 
 const db = require('../models');
+const { cloudinary } = require('../services/cloudinary');
 
 const { DEFAULT_PROFILE_IMAGE } = require('../utils/defaults');
 
@@ -44,30 +45,43 @@ async function signOut(req, res, next) {
   }
 }
 
-// async function register(req, res, next) {
-//    const { email } = req.body;
-//    let profilePicture = req.body.profilePicture || DEFAULT_PROFILE_IMAGE;
+async function updateUser(req, res, next) {
+  try {
+    const id = req.params['id'];
+    const { email, firstName, lastName } = req.body;
+    const mainImage = req.body.profilePicture;
+    console.log(mainImage);
 
-//    try {
-//      const newUser = new db.User({
-//        email: email,
-//        profilePicture: await profilePicture,
-//      });
+    if (mainImage) {
+      const uploadImage = await cloudinary.uploader.upload(mainImage, {
+        upload_preset: 'user-profile-pictures',
+        folder: 'user-profile-pictures',
+      });
 
-//     await newUser.save();
-
-//     return res.status(200).send({
-//       message: 'User registered, please login',
-//     });
-//   } catch (error) {
-//     res.status(500).send({
-//       error: error.message,
-//     });
-//     next(error);
-//   }
-// }
+      const user = await db.User.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            // email: email,
+            profilePicture: uploadImage.url,
+          },
+        },
+        { new: true }
+      );
+      res.status(200).send({
+        message: 'User profile updated',
+        user: user,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+    });
+  }
+}
 
 module.exports = {
   signUp,
   signOut,
+  updateUser,
 };

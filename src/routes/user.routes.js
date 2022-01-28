@@ -5,5 +5,6 @@ const { authMiddleware } = require('../middleware');
 
 UserRouter.post('/sign-up', authMiddleware, userController.signUp);
 UserRouter.get('/sign-out', authMiddleware, userController.signOut);
+UserRouter.patch('/update/:id', authMiddleware, userController.updateUser);
 
 module.exports = UserRouter;
