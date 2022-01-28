@@ -3,7 +3,7 @@ const { userController } = require('../controllers');
 const UserRouter = Router();
 const { authMiddleware } = require('../middleware');
 
-UserRouter.post('/sign-up', authMiddleware, userController.signUp);
+UserRouter.post('/sign-up', userController.signUp);
 UserRouter.get('/sign-out', authMiddleware, userController.signOut);
 
 module.exports = UserRouter;

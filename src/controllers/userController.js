@@ -9,16 +9,20 @@ async function signUp(req, res, next) {
 
     if (foundUser.error) res.status(400).send({ message: 'User not found' });
 
-    if (foundUser.data)
-      res.status(200).send({ user: foundUser, message: 'User logged' });
+    if (foundUser.data) {
+      return res
+        .status(200)
+        .send({ user: foundUser.data, message: 'User logged' });
+    }
 
     const newUser = await UserRepo.create({
       _id: _id,
       email: email,
       userName: userName,
     });
+    console.log(newUser);
     res.status(201).send({
-      data: newUser,
+      user: newUser,
       message: 'User created',
     });
   } catch (err) {
