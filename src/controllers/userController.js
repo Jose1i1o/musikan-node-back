@@ -20,7 +20,7 @@ async function signUp(req, res, next) {
       email: email,
       userName: userName,
     });
-    console.log(newUser);
+
     res.status(201).send({
       user: newUser.data,
       message: 'User created',
