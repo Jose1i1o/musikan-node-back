@@ -19,7 +19,8 @@ async function updateUserProfile(req, res, next) {
         if(mainImage) {
             var uploadImage = await cloudinary.uploader.upload(
                 mainImage, {
-                    upload_preset: 'ml_default'
+                    upload_preset: 'user-profile-pictures',
+                    folder: 'user-profile-pictures',
                 }
             );
             }else{
