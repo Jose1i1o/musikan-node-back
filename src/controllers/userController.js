@@ -26,4 +26,12 @@ async function signUp(req, res, next) {
   }
 }
 
-module.exports = { signUp };
+async function signOut(req, res, next) {
+  try {
+    res.status(200).send({ message: 'User logged out' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { signUp, signOut };
