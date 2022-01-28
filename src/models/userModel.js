@@ -3,7 +3,7 @@ const { isEmail } = require('validator');
 
 const UserSchema = new mongoose.Schema(
   {
-    _id: String,
+    _id: { type: String },
     userName: {
       type: String,
       trim: true,
@@ -18,8 +18,14 @@ const UserSchema = new mongoose.Schema(
         message: (props) => `The email ${props.value} is not valid`,
       },
     },
+    profilePicture: {
+      type: String,
+      trim: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const UserModel = new mongoose.model('users', UserSchema);

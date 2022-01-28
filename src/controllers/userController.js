@@ -1,10 +1,13 @@
 const { UserRepo } = require('../repositories');
 
+const db = require('../models');
+
+const { DEFAULT_PROFILE_IMAGE } = require('../utils/defaults');
+
 async function signUp(req, res, next) {
   const { email, _id } = req.user;
-
   const userName = req.user.userName ? req.user.userName : req.body.userName;
-
+  const profilePicture = req.body.profilePicture || DEFAULT_PROFILE_IMAGE;
   try {
     const foundUser = await UserRepo.findOne({ email: email });
 
@@ -16,10 +19,12 @@ async function signUp(req, res, next) {
         .send({ user: foundUser.data, message: 'User logged' });
     }
 
+    console.log('dentro');
     const newUser = await UserRepo.create({
       _id: _id,
       email: email,
       userName: userName,
+      profilePicture: profilePicture,
     });
 
     res.status(201).send({
@@ -39,4 +44,30 @@ async function signOut(req, res, next) {
   }
 }
 
-module.exports = { signUp, signOut };
+// async function register(req, res, next) {
+//    const { email } = req.body;
+//    let profilePicture = req.body.profilePicture || DEFAULT_PROFILE_IMAGE;
+
+//    try {
+//      const newUser = new db.User({
+//        email: email,
+//        profilePicture: await profilePicture,
+//      });
+
+//     await newUser.save();
+
+//     return res.status(200).send({
+//       message: 'User registered, please login',
+//     });
+//   } catch (error) {
+//     res.status(500).send({
+//       error: error.message,
+//     });
+//     next(error);
+//   }
+// }
+
+module.exports = {
+  signUp,
+  signOut,
+};

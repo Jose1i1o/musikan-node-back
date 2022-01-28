@@ -3,22 +3,30 @@ const { json, urlencoded } = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
-const { CONFIG } = require('./config/config');
-const { UserRouter } = require('./routes');
+const { config } = require('./config');
+
+const { UserRouter, AccountRouter } = require('./routes');
 
 const app = express();
 
 app.use(morgan('dev'));
 app.use(helmet());
-app.use(json());
+app.use(json(
+    {
+        limit: '50mb'
+    }
+));
 app.use(urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }))
 
 app.use(
   cors({
-    origin: CONFIG.development.client.URL,
+    origin: config.development.client.URL,
   })
 );
 
+
 app.use('/user', UserRouter);
+app.use('/profile', AccountRouter);
 
 module.exports = app;

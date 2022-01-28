@@ -1,9 +1,11 @@
 const dotenv = require('dotenv');
 const logger = require('loglevel');
 
+logger.enableAll();
 dotenv.config();
 
-logger.enableAll();
+const { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_NAME } =
+  process.env;
 
 const CONFIG = {
   development: {
@@ -34,6 +36,11 @@ const CONFIG = {
       token_uri: process.env.FB_TOKEN_URI,
       auth_provider_x509_cert_url: process.env.FB_AUTH_CERT_URL,
       client_x509_cert_url: process.env.FB_CLIENT_CERT_URL,
+    },
+    cloudinary: {
+      key: CLOUDINARY_API_KEY,
+      secret: CLOUDINARY_API_SECRET,
+      name: CLOUDINARY_NAME,
     },
   },
 };
