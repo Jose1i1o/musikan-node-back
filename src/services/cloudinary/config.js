@@ -1,6 +1,5 @@
 const { config } = require('../../config');
 var cloudinary = require('cloudinary').v2;
-console.log(config.development);
 
 cloudinary.config({
   cloud_name: config.development.cloudinary.name,

@@ -21,6 +21,6 @@ app.use(
 );
 
 app.use('/user', UserRouter);
-app.use('/account', AccountRouter);
+app.use('/profile', AccountRouter);
 
 module.exports = app;

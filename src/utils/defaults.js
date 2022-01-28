@@ -1,4 +1,5 @@
-const DEFAULT_PROFILE_IMAGE = "https://res.cloudinary.com/dmkdsujzh/image/upload/v1643271691/cld-sample.jpg"
+const DEFAULT_PROFILE_IMAGE = "../images/default-profile-picture.png";
+
 
 module.exports = {
     DEFAULT_PROFILE_IMAGE: DEFAULT_PROFILE_IMAGE,

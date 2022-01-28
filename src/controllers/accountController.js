@@ -8,14 +8,13 @@ const { getPublicId } = require('../utils/cloudinaryUtils');
 
 
 const { DEFAULT_PROFILE_IMAGE } = require('../utils/defaults');
-const { get } = require('http');
 
 async function updateUserProfile(req, res, next) {
     try {
-        const { _id } = req.user;
+        const { id } = req.user;
         const { firstName, lastName, email } = req.body;
         const { profilePicture } = await db.UserModel.findOne({
-            _id: _id,
+            id: id,
         },
         { profilePicture: profilePicture },
     );
@@ -74,9 +73,9 @@ async function updateUserProfile(req, res, next) {
         } else (err) => {
             console.log(err);
         }
-    const updatedProfile = await db.UserModel.findOneAndUpdate(
+        const updatedProfile = await db.UserModel.findOneAndUpdate(
         {
-            _id: _id,
+            id: id,
         },
         {
             firstName: firstName,
@@ -90,15 +89,16 @@ async function updateUserProfile(req, res, next) {
     );
     res.status(200).send({
         message: 'User updated',
-        updatedProfile,
+        id: updatedProfile.id,
+        data: updatedProfile,
     });
     } catch (error) {
         res.status(500).send({
-            message: 'User not updated',
+            message: error.message,
         });
     }
 }
 
-module.exports = { 
+module.exports = {
     updateUserProfile,
 };

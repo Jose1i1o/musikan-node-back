@@ -4,22 +4,22 @@ const logger = require('loglevel');
 logger.enableAll();
 dotenv.config();
 
-// var {
-//   PORT,
-//   CLIENT_URL,
-//   DB_URL,
-//   cloudinary_api_name,
-//   cloudinary_api_key,
-//   cloudinary_api_secret,
-// } = process.env;
+const {
+  PORT,
+  CLIENT_URL,
+  DB_URL,
+  CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET,
+  CLOUDINARY_NAME
+} = process.env;
 
 const CONFIG = {
   development: {
     app: {
-      PORT: process.env.PORT || 4000,
+      PORT: PORT || 4000,
     },
     client: {
-      URL: process.env.CLIENT_URL || 'http://localhost:3000',
+      URL: CLIENT_URL || 'http://localhost:3000',
     },
     logger: {
       warn: logger.warn,
@@ -29,12 +29,12 @@ const CONFIG = {
       debug: logger.debug,
     },
     db: {
-      url: process.env.DB_URL,
+      url: DB_URL,
     },
     cloudinary: {
-      key: process.env.CLOUDINARY_API_KEY,
-      secret: process.env.CLOUDINARY_API_SECRET,
-      name: process.env.CLOUDINARY_NAME,
+      key: CLOUDINARY_API_KEY,
+      secret: CLOUDINARY_API_SECRET,
+      name: CLOUDINARY_NAME,
     },
     firebase: {},
   },
