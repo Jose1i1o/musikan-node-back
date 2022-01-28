@@ -38,7 +38,7 @@ async function register(req, res, next) {
       email: email,
       firstName: firstName || '',
       lastName: lastName || '',
-      profilePicture: await profilePicture.url,
+      profilePicture: await profilePicture,
     });
 
     await newUser.save();

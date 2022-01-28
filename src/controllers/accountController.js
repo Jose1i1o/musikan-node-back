@@ -33,7 +33,7 @@ async function updateUserProfile(req, res, next) {
                     email: email,
                     firstName: firstName ? firstName : '',
                     lastName: lastName ? lastName : '',
-                    profilePicture: uploadImage,
+                    profilePicture: uploadImage.url,
                 },
             },
             { new: true,
