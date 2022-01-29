@@ -1,11 +1,15 @@
 const { UserRepo } = require('../repositories');
 const db = require('../models');
 
+const db = require('../models');
+const { cloudinary } = require('../services/cloudinary');
+
+const { DEFAULT_PROFILE_IMAGE } = require('../utils/defaults');
+
 async function signUp(req, res, next) {
   const { email, _id } = req.user;
-
   const userName = req.user.userName ? req.user.userName : req.body.userName;
-
+  const profilePicture = req.body.profilePicture || DEFAULT_PROFILE_IMAGE;
   try {
     const foundUser = await UserRepo.findOne({ email: email });
 
@@ -17,10 +21,12 @@ async function signUp(req, res, next) {
         .send({ user: foundUser.data, message: 'User logged' });
     }
 
+    console.log('dentro');
     const newUser = await UserRepo.create({
       _id: _id,
       email: email,
       userName: userName,
+      profilePicture: profilePicture,
     });
 
     res.status(201).send({
@@ -32,22 +38,6 @@ async function signUp(req, res, next) {
   }
 }
 
-// async function updateUser(req, res, next) {
-//   try {
-//     await db.User.findOneAndUpdate(
-//       { email: req.user.email },
-//       { firstName: 'testing0' }
-//     );
-
-//     const updatedUser = await db.User.findOne({ email: req.user.email })
-//       .lean()
-//       .exec();
-//     res.status(200).send({ user: updatedUser, message: 'User updated' });
-//   } catch (err) {
-//     next(err);
-//   }
-// }
-
 async function signOut(req, res, next) {
   try {
     res.status(200).send({ message: 'User logged out' });
@@ -56,4 +46,44 @@ async function signOut(req, res, next) {
   }
 }
 
-module.exports = { signUp, signOut, updateUser };
+async function updateUser(req, res, next) {
+  try {
+    const { _id } = req.user;
+    const { email, userName } = req.body;
+    const mainImage = req.body.profilePicture;
+    console.log(mainImage);
+
+    if (mainImage) {
+      const uploadImage = await cloudinary.uploader.upload(mainImage, {
+        upload_preset: 'user-profile-pictures',
+        folder: 'user-profile-pictures',
+      });
+
+      const user = await db.User.findByIdAndUpdate(
+        _id,
+        {
+          $set: {
+            email: email,
+            userName: userName,
+            profilePicture: uploadImage.url,
+          },
+        },
+        { new: true }
+      );
+      res.status(200).send({
+        message: 'User profile updated',
+        user: user,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+    });
+  }
+}
+
+module.exports = {
+  signUp,
+  signOut,
+  updateUser,
+};
