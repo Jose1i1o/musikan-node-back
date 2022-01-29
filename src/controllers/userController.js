@@ -47,7 +47,6 @@ async function signOut(req, res, next) {
 
 async function updateAvatar(req, res, next) {
   const { _id } = req.user;
-  console.log(req.user);
 
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
