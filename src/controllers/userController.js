@@ -1,7 +1,7 @@
 const { UserRepo } = require('../repositories');
 const db = require('../models');
+const upload = require('../utils/multer');
 
-const db = require('../models');
 const { cloudinary } = require('../services/cloudinary');
 
 const { DEFAULT_PROFILE_IMAGE } = require('../utils/defaults');
@@ -21,7 +21,6 @@ async function signUp(req, res, next) {
         .send({ user: foundUser.data, message: 'User logged' });
     }
 
-    console.log('dentro');
     const newUser = await UserRepo.create({
       _id: _id,
       email: email,
@@ -46,44 +45,28 @@ async function signOut(req, res, next) {
   }
 }
 
-async function updateUser(req, res, next) {
+async function updateAvatar(req, res, next) {
+  const { _id } = req.user;
+  console.log(req.user);
+
   try {
-    const { _id } = req.user;
-    const { email, userName } = req.body;
-    const mainImage = req.body.profilePicture;
-    console.log(mainImage);
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const profilePicture = result.secure_url;
 
-    if (mainImage) {
-      const uploadImage = await cloudinary.uploader.upload(mainImage, {
-        upload_preset: 'user-profile-pictures',
-        folder: 'user-profile-pictures',
-      });
+    const foundUser = await db.User.findOneAndUpdate(
+      { _id: _id },
+      { profilePicture: profilePicture },
+      { new: true }
+    );
 
-      const user = await db.User.findByIdAndUpdate(
-        _id,
-        {
-          $set: {
-            email: email,
-            userName: userName,
-            profilePicture: uploadImage.url,
-          },
-        },
-        { new: true }
-      );
-      res.status(200).send({
-        message: 'User profile updated',
-        user: user,
-      });
-    }
-  } catch (error) {
-    res.status(500).send({
-      error: error.message,
-    });
+    res.status(200).send(foundUser.profilePicture);
+  } catch (err) {
+    next(err);
   }
 }
 
 module.exports = {
   signUp,
   signOut,
-  updateUser,
+  updateAvatar,
 };

@@ -17,7 +17,6 @@ app.use(
     limit: '50mb',
   })
 );
-app.use(urlencoded({ extended: true }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(
