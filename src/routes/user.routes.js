@@ -3,7 +3,6 @@ const { userController } = require('../controllers');
 const UserRouter = Router();
 const { authMiddleware } = require('../middleware');
 const upload = require('../utils/multer');
-const { cloudinary } = require('../services/cloudinary');
 
 UserRouter.post('/sign-up', authMiddleware, userController.signUp);
 UserRouter.get('/sign-out', authMiddleware, userController.signOut);

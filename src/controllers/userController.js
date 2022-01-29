@@ -1,6 +1,5 @@
 const { UserRepo } = require('../repositories');
 const db = require('../models');
-const upload = require('../utils/multer');
 
 const { cloudinary } = require('../services/cloudinary');
 
@@ -76,12 +75,10 @@ async function updateUser(req, res, next) {
       { new: true }
     );
 
-    res
-      .status(200)
-      .send({
-        user: { userName: updatedUser.userName, email: updatedUser.email },
-        message: 'UPDATED',
-      });
+    res.status(200).send({
+      user: { userName: updatedUser.userName, email: updatedUser.email },
+      message: 'UPDATED',
+    });
   } catch (err) {
     next(err);
   }
