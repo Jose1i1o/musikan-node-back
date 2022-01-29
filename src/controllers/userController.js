@@ -64,8 +64,32 @@ async function updateAvatar(req, res, next) {
   }
 }
 
+async function updateUser(req, res, next) {
+  const { _id } = req.user;
+
+  const { userName, email } = req.body;
+
+  try {
+    const updatedUser = await db.User.findOneAndUpdate(
+      { _id: _id },
+      { userName: userName, email },
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .send({
+        user: { userName: updatedUser.userName, email: updatedUser.email },
+        message: 'UPDATED',
+      });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   signUp,
   signOut,
   updateAvatar,
+  updateUser,
 };

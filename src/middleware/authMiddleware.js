@@ -2,7 +2,6 @@ const { verifyIdToken } = require('../services/auth/auth-provider');
 
 async function authMiddleware(req, res, next) {
   const { authorization } = req.headers;
-  console.log(req);
 
   const token = authorization.slice(7);
   try {

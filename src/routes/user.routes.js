@@ -13,5 +13,6 @@ UserRouter.post(
   upload.single('profilePicture'),
   userController.updateAvatar
 );
+UserRouter.patch('/update', authMiddleware, userController.updateUser);
 
 module.exports = UserRouter;
