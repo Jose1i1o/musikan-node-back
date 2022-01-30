@@ -71,7 +71,7 @@ async function updateUser(req, res, next) {
   try {
     const updatedUser = await db.User.findOneAndUpdate(
       { _id: _id },
-      { userName: userName, email },
+      { userName: userName, email: email },
       { new: true }
     );
 
