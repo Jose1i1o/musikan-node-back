@@ -6,7 +6,7 @@ const { cloudinary } = require('../services/cloudinary');
 const { DEFAULT_PROFILE_IMAGE } = require('../utils/defaults');
 
 async function signUp(req, res, next) {
-  const { email, _id } = req.user;
+  const { email, _id, provider } = req.user;
   const userName = req.user.userName ? req.user.userName : req.body.userName;
   const profilePicture = req.body.profilePicture || DEFAULT_PROFILE_IMAGE;
   try {
@@ -15,9 +15,15 @@ async function signUp(req, res, next) {
     if (foundUser.error) res.status(400).send({ message: 'User not found' });
 
     if (foundUser.data) {
-      return res
-        .status(200)
-        .send({ user: foundUser.data, message: 'User logged' });
+      return res.status(200).send({
+        user: {
+          email: foundUser.data.email,
+          userName: foundUser.data.userName,
+          profilePicture: foundUser.data.profilePicture,
+          auth_provider: provider,
+        },
+        message: 'User logged',
+      });
     }
 
     const newUser = await UserRepo.create({
@@ -28,7 +34,12 @@ async function signUp(req, res, next) {
     });
 
     res.status(201).send({
-      user: newUser.data,
+      user: {
+        email: newUser.data.email,
+        userName: newUser.data.userName,
+        profilePicture: newUser.data.profilePicture,
+        auth_provider: provider,
+      },
       message: 'User created',
     });
   } catch (err) {
@@ -75,13 +86,11 @@ async function updateUser(req, res, next) {
       { new: true }
     );
 
-    res
-      .status(200)
-      .send({
-        userName: updatedUser.userName,
-        email: updatedUser.email,
-        message: 'UPDATED',
-      });
+    res.status(200).send({
+      userName: updatedUser.userName,
+      email: updatedUser.email,
+      message: 'UPDATED',
+    });
   } catch (err) {
     next(err);
   }
