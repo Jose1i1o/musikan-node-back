@@ -77,10 +77,11 @@ async function updateUser(req, res, next) {
 
     res
       .status(200)
-      .send(
-        { userName: updatedUser.userName, email: updatedUser.email },
-        { message: 'UPDATED' }
-      );
+      .send({
+        userName: updatedUser.userName,
+        email: updatedUser.email,
+        message: 'UPDATED',
+      });
   } catch (err) {
     next(err);
   }
