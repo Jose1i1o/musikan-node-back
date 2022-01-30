@@ -75,10 +75,12 @@ async function updateUser(req, res, next) {
       { new: true }
     );
 
-    res.status(200).send({
-      user: { userName: updatedUser.userName, email: updatedUser.email },
-      message: 'UPDATED',
-    });
+    res
+      .status(200)
+      .send(
+        { userName: updatedUser.userName, email: updatedUser.email },
+        { message: 'UPDATED' }
+      );
   } catch (err) {
     next(err);
   }
