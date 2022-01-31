@@ -23,8 +23,6 @@ async function upload(req, res, next) {
     const audio = uploads[0];
     const image = uploads[1];
 
-    const foundGenre = await Genre.findOne({ name: genre });
-
     const trackSchema = {
       _id: audio.asset_id,
       url: audio.secure_url,
@@ -42,11 +40,14 @@ async function upload(req, res, next) {
       trackSchema.genre = newGenre._id;
     }
 
-    const createdTrack = await db.Track.create(trackSchema);
+    await db.Track.create(trackSchema);
 
-    const updatedTracks = await Track.find({ userId: req.user._id }).populate(
-      'genre'
-    );
+    const updatedTracks = await Track.find({ userId: req.user._id }).select({
+      _id: 0,
+      name: 1,
+      url: 1,
+      thumbnail: 1,
+    });
 
     res.status(201).send({
       message: 'UPLOADED',
