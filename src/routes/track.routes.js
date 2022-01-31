@@ -11,4 +11,13 @@ TrackRouter.post(
   trackController.upload
 );
 
+
+
+
+// get my uploaded songs
+TrackRouter.get('/my-tracks/:id', authMiddleware, trackController.getMyTracks);
+
+
+
+
 module.exports = TrackRouter;

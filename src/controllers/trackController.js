@@ -25,4 +25,14 @@ async function upload(req, res, next) {
   }
 }
 
-module.exports = { upload };
+async function getMyTracks(req, res, next) {
+  try {
+    const tracks = await db.Track.find({ userId: req.user._id });
+    res.status(200).send({ message: 'MY UPLOAD TRACKS', tracks });
+    next();
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+module.exports = { upload, getMyTracks };
