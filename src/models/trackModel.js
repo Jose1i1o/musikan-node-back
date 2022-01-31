@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const TrackSchema = new mongoose.Schema({
+  _id: { type: String },
   name: { type: String, trim: true },
   rating: { type: Number },
   url: { type: String },
