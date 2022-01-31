@@ -5,7 +5,7 @@ const { multerAudio } = require('../utils/multer');
 const { trackController } = require('../controllers');
 
 TrackRouter.post(
-  '/upload-track',
+  '/upload',
   authMiddleware,
   multerAudio.single('track'),
   trackController.upload
