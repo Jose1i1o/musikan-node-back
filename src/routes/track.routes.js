@@ -12,11 +12,17 @@ TrackRouter.post(
 );
 
 
+TrackRouter.get('/my-tracks/:id',
+authMiddleware,
+trackController.getMyTracks
+);
 
 
-// get my uploaded songs
-TrackRouter.get('/my-tracks/:id', authMiddleware, trackController.getMyTracks);
 
+TrackRouter.get('/liked-tracks/:id',
+authMiddleware,
+trackController.getLikedTracks
+);
 
 
 

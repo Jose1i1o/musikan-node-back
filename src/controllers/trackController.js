@@ -16,6 +16,7 @@ async function upload(req, res, next) {
       _id: asset_id,
       url: secure_url,
       userId: req.user._id,
+      liked: true || false,
     });
 
     res.status(201).send({ message: 'UPLOADING', track: createdTrack });
@@ -35,4 +36,17 @@ async function getMyTracks(req, res, next) {
   }
 }
 
-module.exports = { upload, getMyTracks };
+// get my liked tracks
+async function getLikedTracks(req, res, next) {
+  try {
+    const tracks = await db.Track.find({ liked: true });
+    res.status(200).send({ message: 'MY LIKED TRACKS', tracks });
+    next();
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+
+module.exports = { upload, getMyTracks, getLikedTracks };

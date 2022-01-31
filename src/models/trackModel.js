@@ -14,7 +14,7 @@ const TrackSchema = new mongoose.Schema({
   userId: { type: String },
   // genre: { id: String, name: String },
   // albums: [albumId: String],
-  // likedBy: [userId: String]
+  liked: { type: Boolean }
 });
 
 const TrackModel = new mongoose.model('tracks', TrackSchema);
