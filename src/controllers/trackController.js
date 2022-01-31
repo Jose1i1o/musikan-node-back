@@ -1,3 +1,4 @@
+const { User, Track, Genre } = require('../models');
 const db = require('../models');
 
 const { cloudinary } = require('../services/cloudinary');
@@ -22,6 +23,8 @@ async function upload(req, res, next) {
     const audio = uploads[0];
     const image = uploads[1];
 
+    const foundGenre = await Genre.findOne({ name: genre });
+
     const trackSchema = {
       _id: audio.asset_id,
       url: audio.secure_url,
@@ -34,18 +37,20 @@ async function upload(req, res, next) {
     if (createdGenre) {
       trackSchema.genre = createdGenre._id;
     }
-    // let genreId = createdGenre._id;
     if (!createdGenre) {
       const newGenre = await db.Genre.create({ name: genre });
       trackSchema.genre = newGenre._id;
-      //   genreId = newGenre._id;
     }
 
     const createdTrack = await db.Track.create(trackSchema);
 
+    const updatedTracks = await Track.find({ userId: req.user._id }).populate(
+      'genre'
+    );
+
     res.status(201).send({
       message: 'UPLOADED',
-      data: createdTrack,
+      data: updatedTracks,
     });
     next();
   } catch (err) {

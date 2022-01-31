@@ -13,7 +13,7 @@ const TrackSchema = new mongoose.Schema(
     duration: { type: Number },
     color: { type: String },
     userId: { type: String },
-    genre: { type: mongoose.Schema.Types.ObjectId, ref: 'tracks' },
+    genre: { type: mongoose.Schema.Types.ObjectId, ref: 'genre' },
     // albums: [albumId: String],
     // likedBy: [userId: String]
   },
