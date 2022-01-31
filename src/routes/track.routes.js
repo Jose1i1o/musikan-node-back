@@ -7,7 +7,10 @@ const { trackController } = require('../controllers');
 TrackRouter.post(
   '/upload',
   authMiddleware,
-  multerAudio.single('track'),
+  multerAudio.fields([
+    { name: 'track', maxCount: 1 },
+    { name: 'profilePicture', maxCount: 1 },
+  ]),
   trackController.upload
 );
 
