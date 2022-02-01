@@ -1,4 +1,3 @@
-const { User, Track, Genre } = require('../models');
 const db = require('../models');
 
 const { cloudinary } = require('../services/cloudinary');
@@ -51,7 +50,7 @@ async function upload(req, res, next) {
     await db.Track.create(trackSchema);
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
-    const updatedTracks = await Track.find({ userId: req.user._id }).select({
+    const updatedTracks = await db.Track.find({ userId: req.user._id }).select({
       _id: 0,
       name: 1,
       url: 1,
@@ -92,14 +91,14 @@ export async function edit(req, res, next) {
     });
 
     const updatedTracks = await getAllTracks(req.user._id);
-    res.status(200).send({ res: updatedTracks });
+    res.status(200).send({ message: 'Track updated', data: updatedTracks });
   } catch (err) {
     next(err);
   }
 }
 
 function getAllTracks(id) {
-  return Track.find({ userId: id }).select({
+  return db.Track.find({ userId: id }).select({
     _id: 0,
     name: 1,
     url: 1,
