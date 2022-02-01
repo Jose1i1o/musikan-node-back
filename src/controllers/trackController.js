@@ -107,6 +107,19 @@ async function edit(req, res, next) {
   }
 }
 
+async function deleteTrack(req, res, next) {
+  const { id } = req.params;
+
+  try {
+    await db.Track.findOneAndDelete({ _id: id, userId: req.user._id });
+    const updatedTracks = await getAllTracks(req.user._id);
+    res.status(200).send(updatedTracks);
+  } catch (err) {
+    next(err);
+  }
+  next();
+}
+
 async function getAllTracks(id) {
   return db.Track.find({ userId: id }).select({
     _id: 0,
@@ -116,4 +129,4 @@ async function getAllTracks(id) {
   });
 }
 
-module.exports = { upload, edit, getMyTracks, getAllTracks };
+module.exports = { upload, edit, getMyTracks, getAllTracks, deleteTrack };
