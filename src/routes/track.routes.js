@@ -9,7 +9,7 @@ TrackRouter.post(
   authMiddleware,
   multerAudio.fields([
     { name: 'track', maxCount: 1 },
-    { name: 'profilePicture', maxCount: 1 },
+    { name: 'thumbnail', maxCount: 1 },
   ]),
   trackController.upload
 );

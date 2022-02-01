@@ -5,6 +5,7 @@ const { cloudinary } = require('../services/cloudinary');
 
 async function upload(req, res, next) {
   const { name, genre } = req.body;
+  console.log(req.files);
   try {
     // Upload audio to cloudinary
     const uploadedAudio = cloudinary.uploader.upload(req.files.track[0].path, {
@@ -14,7 +15,7 @@ async function upload(req, res, next) {
 
     // Upload thumbnail to cloudinary
     const uploadedImage = cloudinary.uploader.upload(
-      req.files.profilePicture[0].path,
+      req.files.thumbnail[0].path,
       {
         resource_type: 'image',
         folder: 'tracks-thumbnails',
