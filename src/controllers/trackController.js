@@ -6,11 +6,13 @@ const { cloudinary } = require('../services/cloudinary');
 async function upload(req, res, next) {
   const { name, genre } = req.body;
   try {
+    // Upload audio to cloudinary
     const uploadedAudio = cloudinary.uploader.upload(req.files.track[0].path, {
       resource_type: 'video',
       folder: 'tracks',
     });
 
+    // Upload thumbnail to cloudinary
     const uploadedImage = cloudinary.uploader.upload(
       req.files.profilePicture[0].path,
       {
@@ -18,11 +20,14 @@ async function upload(req, res, next) {
         folder: 'tracks-thumbnails',
       }
     );
+
+    // Wait untill both uploads finish
     const uploads = await Promise.all([uploadedAudio, uploadedImage]);
 
     const audio = uploads[0];
     const image = uploads[1];
 
+    // Define the response data schema
     const trackSchema = {
       _id: audio.asset_id,
       url: audio.secure_url,
@@ -31,6 +36,7 @@ async function upload(req, res, next) {
       name: name,
     };
 
+    // If the genre already exists, get his ID and
     const createdGenre = await db.Genre.findOne({ name: genre }).exec();
     if (createdGenre) {
       trackSchema.genre = createdGenre._id;
@@ -40,8 +46,10 @@ async function upload(req, res, next) {
       trackSchema.genre = newGenre._id;
     }
 
+    // Create the new track
     await db.Track.create(trackSchema);
 
+    // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     const updatedTracks = await Track.find({ userId: req.user._id }).select({
       _id: 0,
       name: 1,
