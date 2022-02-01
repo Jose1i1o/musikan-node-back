@@ -69,8 +69,26 @@ async function upload(req, res, next) {
 
 async function getMyTracks(req, res, next) {
   try {
-    const tracks = await db.Track.find({ userId: req.user._id });
-    res.status(200).send({ message: 'MY UPLOAD TRACKS', tracks });
+    // const tracks = await db.Track.find({ userId: req.user._id });
+    const findingTracks = await db.Track.find({
+      userId: req.user._id,
+    }).populate('genre');
+    console.log(findingTracks);
+
+    const tracks = findingTracks.map((track) => {
+      return {
+        _id: track._id,
+        name: track.name,
+        thumbnail: track.thumbnail,
+        genre: track.genre.name,
+      };
+    });
+    console.log(tracks);
+
+    res.status(200).send({
+      message: 'MY UPLOAD TRACKS',
+      tracks,
+    });
     next();
   } catch (err) {
     console.log(err);
