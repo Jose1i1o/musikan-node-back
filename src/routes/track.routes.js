@@ -20,12 +20,4 @@ TrackRouter.patch(
   trackController.edit
 );
 
-
-// TrackRouter.get('/me/tracks',
-// authMiddleware,
-// trackController.getMyTracks
-// );
-
-
-
 module.exports = TrackRouter;
