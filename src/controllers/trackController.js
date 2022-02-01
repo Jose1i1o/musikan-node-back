@@ -67,4 +67,43 @@ async function upload(req, res, next) {
   }
 }
 
-module.exports = { upload };
+export async function edit(req, res, next) {
+  const { id } = req.params;
+  const { name, genre } = req.body;
+
+  const trackSchema = { name: name };
+
+  try {
+    const uploadedPicture = await cloudinary.uploader.upload(req.file.path);
+    trackSchema.thumbnail = uploadedPicture.secure_url;
+
+    const createdGenre = await db.Genre.findOne({ name: genre }).exec();
+    if (createdGenre) {
+      trackSchema.genre = createdGenre._id;
+    }
+    if (!createdGenre) {
+      const newGenre = await db.Genre.create({ name: genre });
+      trackSchema.genre = newGenre._id;
+    }
+
+    const updatedTrack = await db.Track.findByIdAndUpdate(id, trackSchema, {
+      new: true,
+    });
+
+    const updatedTracks = await getAllTracks(req.user._id);
+    res.status(200).send({ res: updatedTracks });
+  } catch (err) {
+    next(err);
+  }
+}
+
+function getAllTracks(id) {
+  return Track.find({ userId: id }).select({
+    _id: 0,
+    name: 1,
+    url: 1,
+    thumbnail: 1,
+  });
+}
+
+module.exports = { upload, edit };
