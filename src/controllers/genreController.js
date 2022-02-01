@@ -7,7 +7,7 @@ async function getGenres(req, res, next) {
       return genre.name;
     });
 
-    res.status(200).send({ message: 'List of genres', data: genreArr });
+    res.status(200).send(genreArr);
   } catch (err) {
     next(err);
   }
