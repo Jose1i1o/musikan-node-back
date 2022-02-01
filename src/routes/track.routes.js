@@ -12,14 +12,14 @@ TrackRouter.post(
 );
 
 
-TrackRouter.get('/my-tracks/:id',
+TrackRouter.get('/me/tracks/:id',
 authMiddleware,
 trackController.getMyTracks
 );
 
 
 
-TrackRouter.get('/liked-tracks/:id',
+TrackRouter.get('/me/tracks/liked/:id',
 authMiddleware,
 trackController.getLikedTracks
 );

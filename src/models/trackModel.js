@@ -11,10 +11,10 @@ const TrackSchema = new mongoose.Schema({
   //   released: { type: ZonedDateTime },
   duration: { type: Number },
   color: { type: String },
-  userId: { type: String },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   // genre: { id: String, name: String },
   // albums: [albumId: String],
-  liked: { type: Boolean }
+  likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 const TrackModel = new mongoose.model('tracks', TrackSchema);
