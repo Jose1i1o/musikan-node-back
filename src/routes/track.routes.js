@@ -21,10 +21,10 @@ TrackRouter.patch(
 );
 
 
-TrackRouter.get('/me/tracks/:id',
-authMiddleware,
-trackController.getMyTracks
-);
+// TrackRouter.get('/me/tracks',
+// authMiddleware,
+// trackController.getMyTracks
+// );
 
 
 

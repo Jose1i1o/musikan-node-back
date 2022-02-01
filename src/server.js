@@ -6,7 +6,8 @@ const cors = require('cors');
 const { config } = require('./config');
 
 const { UserRouter, TrackRouter, GenreRouter } = require('./routes');
-const { errorMiddleware } = require('./middleware');
+const { authMiddleware, errorMiddleware } = require('./middleware');
+const { trackController } = require('./controllers');
 
 const app = express();
 
@@ -30,5 +31,9 @@ app.use(errorMiddleware);
 app.use('/user', UserRouter);
 app.use('/track', TrackRouter);
 app.use('/genre', GenreRouter);
+app.get('/me/tracks',
+authMiddleware,
+trackController.getMyTracks
+);
 
 module.exports = app;
