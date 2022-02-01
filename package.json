@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npx nodemon --exec npx babel-node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js",
+    "test": "npx nodemon --exec npx babel-node src/index.js"
   },
   "dependencies": {
     "body-parser": "^1.19.1",
