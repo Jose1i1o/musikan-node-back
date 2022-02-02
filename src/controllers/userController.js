@@ -73,7 +73,7 @@ async function updateAvatar(req, res, next) {
 
     res.status(200).send({
       success: 'Avatar update succeed',
-      profilePicture: foundUser.profilePicture,
+      user: { profilePicture: foundUser.profilePicture },
     });
   } catch (err) {
     next(err);
