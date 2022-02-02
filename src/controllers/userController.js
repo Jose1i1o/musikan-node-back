@@ -80,17 +80,21 @@ async function updateUser(req, res, next) {
   const { userName, email } = req.body;
 
   try {
-    const updatedUser = await db.User.findOneAndUpdate(
+    const updatedUser = await UserRepo.findOneAndUpdate(
       { _id: _id },
       { userName: userName, email: email },
       { new: true }
     );
 
-    res.status(200).send({
-      userName: updatedUser.userName,
-      email: updatedUser.email,
-      message: 'UPDATED',
-    });
+    // res.status(200).send({
+    //   userName: updatedUser.userName,
+    //   email: updatedUser.email,
+    //   message: 'UPDATED',
+    // });
+    if (updatedUser.error) res.status(500).send({ error: 'errorsito' });
+    if (updatedUser.data) {
+      res.status(200).send({ user: updatedUser.data, message: 'mensajito' });
+    }
   } catch (err) {
     next(err);
   }

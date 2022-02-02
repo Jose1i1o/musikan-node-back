@@ -7,8 +7,8 @@ async function normalizeDbQuery(promise) {
   try {
     const data = await promise;
     result.data = data;
-  } catch (err) {
-    result.err = err.message;
+  } catch (error) {
+    result.error = error.message;
   }
   return result;
 }

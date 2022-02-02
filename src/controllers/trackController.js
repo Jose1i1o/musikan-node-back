@@ -1,4 +1,5 @@
 const db = require('../models');
+const { TrackRepo } = require('../repositories');
 
 const { cloudinary } = require('../services/cloudinary');
 
@@ -25,7 +26,6 @@ async function upload(req, res, next) {
 
     const audio = uploads[0];
     const image = uploads[1];
-    const emptyArray = [];
 
     // Define the response data schema
     const trackSchema = {
@@ -34,7 +34,6 @@ async function upload(req, res, next) {
       userId: req.user._id,
       thumbnail: image.secure_url,
       name: name,
-      likedBy: '',
     };
 
     // If the genre already exists, get his ID and
@@ -48,15 +47,22 @@ async function upload(req, res, next) {
     }
 
     // Create the new track
-    await db.Track.create(trackSchema);
+
+    const newTrack = await TrackRepo.create(trackSchema);
+    console.log(newTrack);
+    if (newTrack.error)
+      return res
+        .status(500)
+        .send({ error: 'Error uploading your track', data: null });
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
-    const updatedTracks = await getOwnTracksWithGenres(req.user._id);
-    res.status(201).send({
-      message: 'UPLOADED',
-      data: updatedTracks,
-    });
-    next();
+    if (newTrack.data) {
+      const updatedTracks = await getOwnTracksWithGenres(req.user._id);
+      res.status(201).send({
+        success: 'Your track has successfully uploaded',
+        data: updatedTracks,
+      });
+    }
   } catch (err) {
     console.log(err);
   }
@@ -87,8 +93,8 @@ async function getMyTracks(req, res, next) {
       tracks,
     });
     next();
-  } catch (err) {
-    console.log(err);
+  } catch (error) {
+    // console.log(error);
   }
 }
 
