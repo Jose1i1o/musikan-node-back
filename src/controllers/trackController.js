@@ -50,8 +50,10 @@ async function upload(req, res, next) {
 
     // Create the new track
     const newTrack = await TrackRepo.create(trackSchema);
-    if (newTrack.error)
+    if (newTrack.error){
       res.status(400).send({ error: 'Error uploading your track' });
+      return;
+    }
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
@@ -64,8 +66,10 @@ async function upload(req, res, next) {
           genre: newTrack.data.genre,
         },
       });
+      return;
     }
     res.status(200).send({ success: 'Can not process your request' });
+    next();
   } catch (err) {
     next(err);
   }
@@ -76,8 +80,10 @@ async function getMyTracks(req, res, next) {
     const findingTracks = await TrackRepo.find({
       userId: req.user._id,
     });
-    if (findingTracks.error)
+    if (findingTracks.error){
       res.status(400).send({ error: 'Error uploading your track' });
+      return;
+    }
 
     if (findingTracks.data) {
       const tracks = findingTracks.data.map((track) => {
@@ -93,10 +99,12 @@ async function getMyTracks(req, res, next) {
         success: 'Your tracks have been loaded',
         data: tracks,
       });
+      return;
     }
     res.status(200).send({
       message: 'You did not upload any tracks yet',
     });
+    next();
   } catch (error) {
     next(err);
   }
@@ -125,9 +133,11 @@ async function edit(req, res, next) {
       new: true,
     });
 
-    if (updatedTrack.error)
+    if (updatedTrack.error){
       res.status(400).send({ error: 'Error updating your track' });
     console.log(updatedTrack);
+    return;
+    }
 
     if (updatedTrack.data) {
       res.status(200).send({
@@ -139,8 +149,10 @@ async function edit(req, res, next) {
           genre: updatedTrack.data.genre.name,
         },
       });
+      return;
     }
     res.status(200).send({ message: 'Can not process your request' });
+    next();
   } catch (err) {
     next(err);
   }
@@ -155,12 +167,16 @@ async function deleteTrack(req, res, next) {
       userId: req.user._id,
     });
 
-    if (deletedTrack.error)
+    if (deletedTrack.error){
       res.status(400).send({ error: 'Error deleting your track' });
-
+      return;
+    }
+    else{
     res
       .status(200)
       .send({ success: 'Your track has been deleted', data: { _id: id } });
+    next();
+    }
   } catch (err) {
     next(err);
   }
@@ -174,8 +190,10 @@ async function getLikedTracks(req, res, next) {
       { _id: 1, name: 1, url: 1, thumbnail: 1 }
     );
     console.log(tracks);
-    if (tracks.error)
+    if (tracks.error){
       res.status(400).send({ error: 'Error deleting your track' });
+      return;
+    }
 
     if (tracks.data) {
       const filteredTracks = tracks.data.map((track) => {
@@ -188,8 +206,10 @@ async function getLikedTracks(req, res, next) {
       });
 
       res.status(200).send({ success: 'Liked tracks', data: filteredTracks });
+      return;
     }
     res.status(200).send({ message: 'You did not like any track yet' });
+    next();
   } catch (err) {
     next(err);
   }
@@ -218,9 +238,10 @@ async function likeTrack(req, res, next) {
       ],
       { new: true }
     );
-    if (updateLike.error)
+    if (updateLike.error){
       res.status(400).send({ error: 'Error deleting your track' });
-
+      return;
+    }
     if (updateLike.data) {
       const like = updateLike.data.likedBy.includes(userId) ? true : false;
       res.status(200).send({
@@ -229,6 +250,7 @@ async function likeTrack(req, res, next) {
           : 'You do not like a track anymore',
         data: { _id: updateLike.data._id, like: like },
       });
+      return;
     }
     res.status(200).send({ message: 'Can not process your like request' });
   } catch (err) {

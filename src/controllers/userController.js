@@ -12,10 +12,13 @@ async function signUp(req, res, next) {
   try {
     const foundUser = await UserRepo.findOne({ email: email });
 
-    if (foundUser.error) res.status(400).send({ error: 'User not found' });
+    if (foundUser.error){
+    res.status(400).send({ error: 'User not found' });
+    return;
+    }
 
     if (foundUser.data) {
-      return res.status(200).send({
+      res.status(200).send({
         user: {
           email: foundUser.data.email,
           userName: foundUser.data.userName,
@@ -24,6 +27,7 @@ async function signUp(req, res, next) {
         },
         success: 'User logged',
       });
+      return;
     }
 
     const newUser = await UserRepo.create({
@@ -42,6 +46,7 @@ async function signUp(req, res, next) {
         auth_provider: provider,
       },
     });
+    next();
   } catch (err) {
     next(err);
   }
@@ -68,13 +73,18 @@ async function updateAvatar(req, res, next) {
       { new: true }
     );
 
-    if (foundUser.error)
+    if (foundUser.error){
       res.status(400).send({ error: 'Error updating avatar' });
-
+      return;
+    }
+    if (foundUser.data) {
     res.status(200).send({
       success: 'Avatar update succeed',
       user: { profilePicture: foundUser.profilePicture },
     });
+    return;
+    }
+    next();
   } catch (err) {
     next(err);
   }
@@ -92,8 +102,10 @@ async function updateUser(req, res, next) {
       { new: true }
     );
 
-    if (updatedUser.error)
+    if (updatedUser.error){
       res.status(400).send({ error: 'Error updating your user data' });
+      return;
+    }
     if (updatedUser.data) {
       res.status(200).send({
         success: 'Your user updated successfully',
@@ -103,7 +115,9 @@ async function updateUser(req, res, next) {
           profilePicture: updatedUser.data.profilePicture,
         },
       });
+      return;
     }
+    next();
   } catch (err) {
     next(err);
   }
