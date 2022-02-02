@@ -8,7 +8,7 @@ async function authMiddleware(req, res, next) {
     const verifiedToken = await auth.verifyIdToken(bearerToken);
 
     if (!verifiedToken) {
-      res.status(500).send({ message: 'Error with authentication' });
+      res.status(400).send({ error: 'Error with authentication' });
     }
     console.log(bearerToken);
     const { uid, email, firebase } = verifiedToken;

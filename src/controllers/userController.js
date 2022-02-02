@@ -12,7 +12,7 @@ async function signUp(req, res, next) {
   try {
     const foundUser = await UserRepo.findOne({ email: email });
 
-    if (foundUser.error) res.status(400).send({ message: 'User not found' });
+    if (foundUser.error) res.status(400).send({ error: 'User not found' });
 
     if (foundUser.data) {
       return res.status(200).send({
