@@ -51,7 +51,7 @@ async function upload(req, res, next) {
     await db.Track.create(trackSchema);
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
-    const updatedTracks = await getTracksWithGenres(req.user._id);
+    const updatedTracks = await getOwnTracksWithGenres(req.user._id);
     res.status(201).send({
       message: 'UPLOADED',
       data: updatedTracks,
@@ -62,7 +62,7 @@ async function upload(req, res, next) {
   }
 }
 
-async function getTracksWithGenres(userId) {
+async function getOwnTracksWithGenres(userId) {
   const findingTracks = await db.Track.find({
     userId: userId,
   }).populate('genre');
@@ -80,7 +80,7 @@ async function getTracksWithGenres(userId) {
 
 async function getMyTracks(req, res, next) {
   try {
-    const tracks = await getTracksWithGenres(req.user._id);
+    const tracks = await getOwnTracksWithGenres(req.user._id);
 
     res.status(200).send({
       message: 'MY UPLOAD TRACKS',
@@ -115,7 +115,7 @@ async function edit(req, res, next) {
       new: true,
     });
 
-    const tracks = await getTracksWithGenres(req.user._id);
+    const tracks = await getOwnTracksWithGenres(req.user._id);
     res.status(200).send({ message: 'Track updated', data: tracks });
   } catch (err) {
     next(err);
@@ -127,7 +127,7 @@ async function deleteTrack(req, res, next) {
 
   try {
     await db.Track.findOneAndDelete({ _id: id, userId: req.user._id });
-    const tracks = await getTracksWithGenres(req.user._id);
+    const tracks = await getOwnTracksWithGenres(req.user._id);
     res.status(200).send(tracks);
   } catch (err) {
     next(err);
@@ -146,14 +146,22 @@ async function getAllTracks(id) {
 
 async function getLikedTracks(req, res, next) {
   try {
-    console.log(req.user._id);
-
     const tracks = await db.Track.find(
       { likedBy: req.user._id },
-      { _id: 1, name: 1, url: 1, thumbnail: 1, likedBy: 1 }
-    );
+      { _id: 1, name: 1, url: 1, thumbnail: 1 }
+    ).populate('genre');
+    console.log(tracks);
 
-    res.status(200).send({ message: 'Liked tracks', tracks });
+    const filteredTracks = tracks.map((track) => {
+      return {
+        _id: track._id,
+        name: track.name,
+        thumbnail: track.thumbnail,
+        genre: track.genre.name,
+      };
+    });
+
+    res.status(200).send({ message: 'Liked tracks', tracks: filteredTracks });
   } catch (err) {
     next(err);
   }
@@ -181,8 +189,9 @@ async function likeTrack(req, res, next) {
           },
         },
       ]
-    );
-    res.status(200).send({ message: 'hello world', updateLike });
+    )
+      .res.status(200)
+      .send({ message: 'hello world', updateLike });
   } catch (err) {
     next(err);
   }
