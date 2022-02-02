@@ -26,6 +26,7 @@ async function upload(req, res, next) {
 
     const audio = uploads[0];
     const image = uploads[1];
+    const emptyArray = [];
 
     // Define the response data schema
     const trackSchema = {
@@ -34,6 +35,7 @@ async function upload(req, res, next) {
       userId: req.user._id,
       thumbnail: image.secure_url,
       name: name,
+      likedBy: '',
     };
 
     // If the genre already exists, get his ID and
@@ -50,7 +52,7 @@ async function upload(req, res, next) {
     await db.Track.create(trackSchema);
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
-    const updatedTracks = await db.Track.find({ userId: req.user._id }).select({
+    const updatedTracks = await db.Track.filter({ userId: req.user._id }).select({
       _id: 0,
       name: 1,
       url: 1,
@@ -116,4 +118,65 @@ async function getAllTracks(id) {
   });
 }
 
-module.exports = { upload, edit, getMyTracks, getAllTracks };
+async function getLikedTracks(req, res, next) {
+  
+  try {
+    console.log(req.user._id);
+    
+    const tracks = await db.Track.find(
+      { likedBy: req.user._id },
+      // { _id: 0, name: 1, url: 1, thumbnail: 1, isLiked: {$setIsSubset: [[req.user._id]]}   },
+    );
+
+    res.status(200).send({ message: 'Liked tracks', tracks });
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+async function likeTrack(req, res, next) {
+  try{
+    const id = req.params['id'];
+    console.log(id);
+    const userId = req.user._id
+    console.log(userId);
+    
+    const updateLike = await db.Track.findOneAndUpdate({
+      _id: id
+    }, [{
+        $set: {
+          likedBy: {
+            $cond: {
+              if: { $in: [userId, "$likedBy"] },
+              then: { $setDifference: ["$likedBy", [userId]] },
+              else: { $concatArrays: ["$likedBy", [userId]] },
+            },
+          },
+        },
+    }
+    ])
+
+
+
+    res.status(200).send({ message: "hello world", updateLike });
+  }catch (err) {
+    console.log(err);
+  }
+}
+
+    //   _id: id,
+    //   }, {
+    //   $cond: {
+    //     if: {
+    //         _id: id,
+    //         likedBy: { $nin: [userId] }, //$nin checks whether the userId does not already exists in the array
+    //       },
+    //       $push: { likedBy: [userId]
+    //     }, else : {
+    //       $pull: { likedBy: [userId] }
+    //     }
+    //   }
+    // }
+    // );
+
+module.exports = { upload, edit, getMyTracks, getAllTracks, getLikedTracks, likeTrack };

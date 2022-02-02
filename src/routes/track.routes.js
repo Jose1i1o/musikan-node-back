@@ -20,11 +20,11 @@ TrackRouter.patch(
   trackController.edit
 );
 
-
-// TrackRouter.get('/me/tracks',
-// authMiddleware,
-// trackController.getMyTracks
-// );
+TrackRouter.put(
+  '/:id/like',
+  authMiddleware,
+  trackController.likeTrack
+)
 
 
 
