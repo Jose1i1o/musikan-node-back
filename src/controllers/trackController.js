@@ -188,22 +188,27 @@ async function deleteTrack(req, res, next) {
 
 async function getLikedTracks(req, res, next) {
   try {
-    const tracks = await db.Track.find(
+    const tracks = await TrackRepo.find(
       { likedBy: req.user._id },
       { _id: 1, name: 1, url: 1, thumbnail: 1 }
-    ).populate('genre');
+    );
     console.log(tracks);
+    if (tracks.error)
+      res.status(400).send({ error: 'Error deleting your track' });
 
-    const filteredTracks = tracks.map((track) => {
-      return {
-        _id: track._id,
-        name: track.name,
-        thumbnail: track.thumbnail,
-        genre: track.genre.name,
-      };
-    });
+    if (tracks.data) {
+      const filteredTracks = tracks.data.map((track) => {
+        return {
+          _id: track._id,
+          name: track.name,
+          thumbnail: track.thumbnail,
+          genre: track.genre.name,
+        };
+      });
 
-    res.status(200).send({ success: 'Liked tracks', tracks: filteredTracks });
+      res.status(200).send({ success: 'Liked tracks', data: filteredTracks });
+    }
+    res.status(200).send({ message: 'You did not like any track yet' });
   } catch (err) {
     next(err);
   }
@@ -237,7 +242,6 @@ async function likeTrack(req, res, next) {
 
     if (updateLike.data) {
       const like = updateLike.data.likedBy.includes(userId) ? true : false;
-      // console.log(updateLike.data.likedBy.includes(userId));
       res.status(200).send({
         success: like
           ? 'You like a new track'
