@@ -52,7 +52,9 @@ async function upload(req, res, next) {
     await db.Track.create(trackSchema);
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
-    const updatedTracks = await db.Track.filter({ userId: req.user._id }).select({
+    const updatedTracks = await db.Track.filter({
+      userId: req.user._id,
+    }).select({
       _id: 0,
       name: 1,
       url: 1,
@@ -132,13 +134,12 @@ async function getAllTracks(id) {
 }
 
 async function getLikedTracks(req, res, next) {
-  
   try {
     console.log(req.user._id);
-    
+
     const tracks = await db.Track.find(
       { likedBy: req.user._id },
-      { _id: 0, name: 1, url: 1, thumbnail: 1, isLiked: 1   },
+      { _id: 1, name: 1, url: 1, thumbnail: 1, likedBy: 1 }
     );
 
     res.status(200).send({ message: 'Liked tracks', tracks });
@@ -148,28 +149,40 @@ async function getLikedTracks(req, res, next) {
 }
 
 async function likeTrack(req, res, next) {
-  try{
+  try {
     const id = req.params['id'];
-    const userId = req.user._id
+    const userId = req.user._id;
 
-    const updateLike = await db.Track.findOneAndUpdate({
-      _id: id
-    }, [{
-        $set: {
-          likedBy: {
-            $cond: {
-              if: { $in: [userId, "$likedBy"] },
-              then: { $setDifference: ["$likedBy", [userId]] },
-              else: { $concatArrays: ["$likedBy", [userId]] },
+    const updateLike = await db.Track.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      [
+        {
+          $set: {
+            likedBy: {
+              $cond: {
+                if: { $in: [userId, '$likedBy'] },
+                then: { $setDifference: ['$likedBy', [userId]] },
+                else: { $concatArrays: ['$likedBy', [userId]] },
+              },
             },
           },
         },
-    }
-    ])
-    res.status(200).send({ message: "hello world", updateLike });
-  }catch (err) {
+      ]
+    );
+    res.status(200).send({ message: 'hello world', updateLike });
+  } catch (err) {
     next(err);
   }
 }
 
-module.exports = { upload, edit, getMyTracks, getAllTracks, getLikedTracks, likeTrack, deleteTrack };
+module.exports = {
+  upload,
+  edit,
+  getMyTracks,
+  getAllTracks,
+  getLikedTracks,
+  likeTrack,
+  deleteTrack,
+};
