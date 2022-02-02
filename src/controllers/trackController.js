@@ -4,7 +4,6 @@ const { cloudinary } = require('../services/cloudinary');
 
 async function upload(req, res, next) {
   const { name, genre } = req.body;
-  console.log(req.files);
   try {
     // Upload audio to cloudinary
     const uploadedAudio = cloudinary.uploader.upload(req.files.track[0].path, {
@@ -50,13 +49,8 @@ async function upload(req, res, next) {
     await db.Track.create(trackSchema);
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
-    const updatedTracks = await db.Track.find({ userId: req.user._id }).select({
-      _id: 0,
-      name: 1,
-      url: 1,
-      thumbnail: 1,
-    });
-
+    const updatedTracks = await getTracksWithGenres(req.user._id);
+    console.log(updatedTracks);
     res.status(201).send({
       message: 'UPLOADED',
       data: updatedTracks,
@@ -67,23 +61,25 @@ async function upload(req, res, next) {
   }
 }
 
+async function getTracksWithGenres(userId) {
+  const findingTracks = await db.Track.find({
+    userId: userId,
+  }).populate('genre');
+
+  const tracks = findingTracks.map((track) => {
+    return {
+      _id: track._id,
+      name: track.name,
+      thumbnail: track.thumbnail,
+      genre: track.genre.name,
+    };
+  });
+  return tracks;
+}
+
 async function getMyTracks(req, res, next) {
   try {
-    // const tracks = await db.Track.find({ userId: req.user._id });
-    const findingTracks = await db.Track.find({
-      userId: req.user._id,
-    }).populate('genre');
-    console.log(findingTracks);
-
-    const tracks = findingTracks.map((track) => {
-      return {
-        _id: track._id,
-        name: track.name,
-        thumbnail: track.thumbnail,
-        genre: track.genre.name,
-      };
-    });
-    console.log(tracks);
+    const tracks = await getTracksWithGenres(req.user._id);
 
     res.status(200).send({
       message: 'MY UPLOAD TRACKS',

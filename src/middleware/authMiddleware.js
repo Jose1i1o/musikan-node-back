@@ -4,7 +4,7 @@ async function authMiddleware(req, res, next) {
   const { authorization } = req.headers;
 
   const token = authorization.slice(7);
-  // console.log(token);
+  console.log(token);
   try {
     const verifiedToken = await verifyIdToken(token);
 
