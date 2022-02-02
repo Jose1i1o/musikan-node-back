@@ -67,31 +67,12 @@ async function upload(req, res, next) {
     }
     res.status(200).send({ success: 'Can not process your request' });
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 }
 
-// async function getOwnTracksWithGenres(userId) {
-//   const findingTracks = await TrackRepo.find({
-//     userId: userId,
-//   });
-//   console.log(findingTracks);
-
-//   const tracks = findingTracks.data.map((track) => {
-//     return {
-//       _id: track._id,
-//       name: track.name,
-//       thumbnail: track.thumbnail,
-//       genre: track.genre.name,
-//     };
-//   });
-//   return tracks;
-// }
-
 async function getMyTracks(req, res, next) {
   try {
-    // const tracks = await getOwnTracksWithGenres(req.user._id);
-
     const findingTracks = await TrackRepo.find({
       userId: req.user._id,
     });
@@ -117,7 +98,7 @@ async function getMyTracks(req, res, next) {
       message: 'You did not upload any tracks yet',
     });
   } catch (error) {
-    // console.log(error);
+    next(err);
   }
 }
 
