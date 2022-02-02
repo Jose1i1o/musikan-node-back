@@ -41,15 +41,15 @@ async function upload(req, res, next) {
     if (createdGenre) {
       trackSchema.genre = createdGenre._id;
     }
+
+    // If genre doesn't exist, create it
     if (!createdGenre) {
       const newGenre = await db.Genre.create({ name: genre });
       trackSchema.genre = newGenre._id;
     }
 
     // Create the new track
-
     const newTrack = await TrackRepo.create(trackSchema);
-    console.log(newTrack);
     if (newTrack.error)
       return res
         .status(500)
@@ -69,11 +69,11 @@ async function upload(req, res, next) {
 }
 
 async function getOwnTracksWithGenres(userId) {
-  const findingTracks = await db.Track.find({
+  const findingTracks = await TrackRepo.find({
     userId: userId,
-  }).populate('genre');
+  });
 
-  const tracks = findingTracks.map((track) => {
+  const tracks = findingTracks.data.map((track) => {
     return {
       _id: track._id,
       name: track.name,
@@ -90,7 +90,7 @@ async function getMyTracks(req, res, next) {
 
     res.status(200).send({
       message: 'MY UPLOAD TRACKS',
-      tracks,
+      data: tracks,
     });
     next();
   } catch (error) {

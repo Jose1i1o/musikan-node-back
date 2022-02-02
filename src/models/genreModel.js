@@ -4,6 +4,7 @@ const GenreSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      unique: true,
     },
     popularity: {
       type: Number,
