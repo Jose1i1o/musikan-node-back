@@ -22,7 +22,7 @@ async function signUp(req, res, next) {
           profilePicture: foundUser.data.profilePicture,
           auth_provider: provider,
         },
-        message: 'User logged',
+        success: 'User logged',
       });
     }
 
@@ -34,13 +34,13 @@ async function signUp(req, res, next) {
     });
 
     res.status(201).send({
+      success: 'User registered',
       user: {
         email: newUser.data.email,
         userName: newUser.data.userName,
         profilePicture: newUser.data.profilePicture,
         auth_provider: provider,
       },
-      message: 'User created',
     });
   } catch (err) {
     next(err);
@@ -49,7 +49,7 @@ async function signUp(req, res, next) {
 
 async function signOut(req, res, next) {
   try {
-    res.status(200).send({ message: 'User logged out' });
+    res.status(200).send({ success: 'User logged out' });
   } catch (err) {
     next(err);
   }
@@ -68,7 +68,13 @@ async function updateAvatar(req, res, next) {
       { new: true }
     );
 
-    res.status(200).send(foundUser.profilePicture);
+    if (foundUser.error)
+      res.status(400).send({ error: 'Error updating avatar' });
+
+    res.status(200).send({
+      success: 'Avatar update succeed',
+      profilePicture: foundUser.profilePicture,
+    });
   } catch (err) {
     next(err);
   }
@@ -86,14 +92,17 @@ async function updateUser(req, res, next) {
       { new: true }
     );
 
-    // res.status(200).send({
-    //   userName: updatedUser.userName,
-    //   email: updatedUser.email,
-    //   message: 'UPDATED',
-    // });
-    if (updatedUser.error) res.status(500).send({ error: 'errorsito' });
+    if (updatedUser.error)
+      res.status(400).send({ error: 'Error updating your user data' });
     if (updatedUser.data) {
-      res.status(200).send({ user: updatedUser.data, message: 'mensajito' });
+      res.status(200).send({
+        success: 'Your user updated successfully',
+        user: {
+          email: updatedUser.data.email,
+          userName: updatedUser.data.userName,
+          profilePicture: updatedUser.data.profilePicture,
+        },
+      });
     }
   } catch (err) {
     next(err);

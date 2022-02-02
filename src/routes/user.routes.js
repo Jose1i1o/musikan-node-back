@@ -5,7 +5,7 @@ const { authMiddleware } = require('../middleware');
 const { multerImage } = require('../utils/multer');
 
 UserRouter.post('/sign-up', authMiddleware, userController.signUp);
-UserRouter.get('/sign-out', authMiddleware, userController.signOut);
+UserRouter.get('/sign-out', userController.signOut);
 UserRouter.post(
   '/update-avatar',
   authMiddleware,
