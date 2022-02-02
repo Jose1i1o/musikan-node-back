@@ -51,48 +51,71 @@ async function upload(req, res, next) {
     // Create the new track
     const newTrack = await TrackRepo.create(trackSchema);
     if (newTrack.error)
-      return res
-        .status(500)
-        .send({ error: 'Error uploading your track', data: null });
+      res.status(400).send({ error: 'Error uploading your track' });
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
-      const updatedTracks = await getOwnTracksWithGenres(req.user._id);
       res.status(201).send({
         success: 'Your track has successfully uploaded',
-        data: updatedTracks,
+        data: {
+          _id: newTrack.data._id,
+          name: newTrack.data.name,
+          thumbnail: newTrack.data.thumbnail,
+          genre: newTrack.data.genre,
+        },
       });
     }
+    res.status(200).send({ success: 'Can not process your request' });
   } catch (err) {
     console.log(err);
   }
 }
 
-async function getOwnTracksWithGenres(userId) {
-  const findingTracks = await TrackRepo.find({
-    userId: userId,
-  });
+// async function getOwnTracksWithGenres(userId) {
+//   const findingTracks = await TrackRepo.find({
+//     userId: userId,
+//   });
+//   console.log(findingTracks);
 
-  const tracks = findingTracks.data.map((track) => {
-    return {
-      _id: track._id,
-      name: track.name,
-      thumbnail: track.thumbnail,
-      genre: track.genre.name,
-    };
-  });
-  return tracks;
-}
+//   const tracks = findingTracks.data.map((track) => {
+//     return {
+//       _id: track._id,
+//       name: track.name,
+//       thumbnail: track.thumbnail,
+//       genre: track.genre.name,
+//     };
+//   });
+//   return tracks;
+// }
 
 async function getMyTracks(req, res, next) {
   try {
-    const tracks = await getOwnTracksWithGenres(req.user._id);
+    // const tracks = await getOwnTracksWithGenres(req.user._id);
 
-    res.status(200).send({
-      message: 'MY UPLOAD TRACKS',
-      data: tracks,
+    const findingTracks = await TrackRepo.find({
+      userId: req.user._id,
     });
-    next();
+    if (findingTracks.error)
+      res.status(400).send({ error: 'Error uploading your track' });
+
+    if (findingTracks.data) {
+      const tracks = findingTracks.data.map((track) => {
+        return {
+          _id: track._id,
+          name: track.name,
+          thumbnail: track.thumbnail,
+          genre: track.genre.name,
+        };
+      });
+
+      res.status(200).send({
+        success: 'Your tracks have been loaded',
+        data: tracks,
+      });
+    }
+    res.status(200).send({
+      message: 'You did not upload any tracks yet',
+    });
   } catch (error) {
     // console.log(error);
   }
@@ -117,12 +140,26 @@ async function edit(req, res, next) {
       trackSchema.genre = newGenre._id;
     }
 
-    await db.Track.findByIdAndUpdate(id, trackSchema, {
+    const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
       new: true,
     });
 
-    const tracks = await getOwnTracksWithGenres(req.user._id);
-    res.status(200).send({ message: 'Track updated', data: tracks });
+    if (updatedTrack.error)
+      res.status(400).send({ error: 'Error updating your track' });
+    console.log(updatedTrack);
+
+    if (updatedTrack.data) {
+      res.status(200).send({
+        success: `Track ${updatedTrack.data.name} updated`,
+        data: {
+          _id: updatedTrack.data._id,
+          name: updatedTrack.data.name,
+          thumbnail: updatedTrack.data.thumbnail,
+          genre: updatedTrack.data.genre.name,
+        },
+      });
+    }
+    res.status(200).send({ message: 'Can not process your request' });
   } catch (err) {
     next(err);
   }
@@ -132,22 +169,21 @@ async function deleteTrack(req, res, next) {
   const { id } = req.params;
 
   try {
-    await db.Track.findOneAndDelete({ _id: id, userId: req.user._id });
-    const tracks = await getOwnTracksWithGenres(req.user._id);
-    res.status(200).send(tracks);
+    const deletedTrack = await TrackRepo.findOneAndDelete({
+      _id: id,
+      userId: req.user._id,
+    });
+
+    if (deletedTrack.error)
+      res.status(400).send({ error: 'Error deleting your track' });
+
+    res
+      .status(200)
+      .send({ success: 'Your track has been deleted', data: { _id: id } });
   } catch (err) {
     next(err);
   }
   next();
-}
-
-async function getAllTracks(id) {
-  return db.Track.find({ userId: id }).select({
-    _id: 0,
-    name: 1,
-    url: 1,
-    thumbnail: 1,
-  });
 }
 
 async function getLikedTracks(req, res, next) {
@@ -167,7 +203,7 @@ async function getLikedTracks(req, res, next) {
       };
     });
 
-    res.status(200).send({ message: 'Liked tracks', tracks: filteredTracks });
+    res.status(200).send({ success: 'Liked tracks', tracks: filteredTracks });
   } catch (err) {
     next(err);
   }
@@ -175,13 +211,12 @@ async function getLikedTracks(req, res, next) {
 
 async function likeTrack(req, res, next) {
   try {
-    const id = req.params['id'];
+    const id = req.params.id;
     const userId = req.user._id;
 
-    const updateLike = await db.Track.findOneAndUpdate(
-      {
-        _id: id,
-      },
+    const updateLike = await TrackRepo.findByIdAndUpdate(
+      id,
+
       [
         {
           $set: {
@@ -194,10 +229,23 @@ async function likeTrack(req, res, next) {
             },
           },
         },
-      ]
-    )
-      .res.status(200)
-      .send({ message: 'hello world', updateLike });
+      ],
+      { new: true }
+    );
+    if (updateLike.error)
+      res.status(400).send({ error: 'Error deleting your track' });
+
+    if (updateLike.data) {
+      const like = updateLike.data.likedBy.includes(userId) ? true : false;
+      // console.log(updateLike.data.likedBy.includes(userId));
+      res.status(200).send({
+        success: like
+          ? 'You like a new track'
+          : 'You do not like a track anymore',
+        data: { _id: updateLike.data._id, like: like },
+      });
+    }
+    res.status(200).send({ message: 'Can not process your like request' });
   } catch (err) {
     next(err);
   }
@@ -207,7 +255,6 @@ module.exports = {
   upload,
   edit,
   getMyTracks,
-  getAllTracks,
   getLikedTracks,
   likeTrack,
   deleteTrack,

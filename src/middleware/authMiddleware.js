@@ -4,14 +4,13 @@ async function authMiddleware(req, res, next) {
   const { authorization } = req.headers;
 
   try {
-    // const token = authorization.slice(7);
-    // console.log(token);
     const bearerToken = await auth.getAuthToken(req.headers);
     const verifiedToken = await auth.verifyIdToken(bearerToken);
 
     if (!verifiedToken) {
       res.status(500).send({ message: 'Error with authentication' });
     }
+    console.log(bearerToken);
     const { uid, email, firebase } = verifiedToken;
     req.user = {
       _id: uid,

@@ -1,5 +1,5 @@
 const express = require('express');
-const { json, urlencoded } = require('body-parser');
+const { json } = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -27,9 +27,9 @@ app.use(
 
 app.use(errorMiddleware);
 
-app.use('/user', UserRouter);
-app.use('/track', TrackRouter);
-app.use('/genre', GenreRouter);
-app.use('/me', MeRouter);
+app.use('/api/user', UserRouter);
+app.use('/api/tracks', TrackRouter);
+app.use('/api/genre', GenreRouter);
+app.use('/api/me', MeRouter);
 
 module.exports = app;
