@@ -5,7 +5,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 const { config } = require('./config');
 
-const { UserRouter } = require('./routes');
+const { UserRouter, TrackRouter, GenreRouter, MeRouter } = require('./routes');
 const { errorMiddleware } = require('./middleware');
 
 const app = express();
@@ -28,5 +28,8 @@ app.use(
 app.use(errorMiddleware);
 
 app.use('/user', UserRouter);
+app.use('/track', TrackRouter);
+app.use('/genre', GenreRouter);
+app.use('/me', MeRouter);
 
 module.exports = app;
