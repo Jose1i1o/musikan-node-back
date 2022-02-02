@@ -110,12 +110,12 @@ async function edit(req, res, next) {
       trackSchema.genre = newGenre._id;
     }
 
-    const updatedTrack = await db.Track.findByIdAndUpdate(id, trackSchema, {
+    await db.Track.findByIdAndUpdate(id, trackSchema, {
       new: true,
     });
 
-    const updatedTracks = await getAllTracks(req.user._id);
-    res.status(200).send({ message: 'Track updated', data: updatedTracks });
+    const tracks = await getTracksWithGenres(req.user._id);
+    res.status(200).send({ message: 'Track updated', data: tracks });
   } catch (err) {
     next(err);
   }
@@ -126,8 +126,8 @@ async function deleteTrack(req, res, next) {
 
   try {
     await db.Track.findOneAndDelete({ _id: id, userId: req.user._id });
-    const updatedTracks = await getAllTracks(req.user._id);
-    res.status(200).send(updatedTracks);
+    const tracks = await getTracksWithGenres(req.user._id);
+    res.status(200).send(tracks);
   } catch (err) {
     next(err);
   }
