@@ -19,6 +19,13 @@ TrackRouter.patch(
   multerImage.single('thumbnail'),
   trackController.edit
 );
+
+TrackRouter.put(
+  '/:id/like',
+  authMiddleware,
+  trackController.likeTrack
+)
+
 TrackRouter.delete('/:id', authMiddleware, trackController.deleteTrack);
 
 module.exports = TrackRouter;

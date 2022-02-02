@@ -25,6 +25,7 @@ async function upload(req, res, next) {
 
     const audio = uploads[0];
     const image = uploads[1];
+    const emptyArray = [];
 
     // Define the response data schema
     const trackSchema = {
@@ -33,6 +34,7 @@ async function upload(req, res, next) {
       userId: req.user._id,
       thumbnail: image.secure_url,
       name: name,
+      likedBy: '',
     };
 
     // If the genre already exists, get his ID and
@@ -50,7 +52,6 @@ async function upload(req, res, next) {
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     const updatedTracks = await getTracksWithGenres(req.user._id);
-    console.log(updatedTracks);
     res.status(201).send({
       message: 'UPLOADED',
       data: updatedTracks,
@@ -143,4 +144,56 @@ async function getAllTracks(id) {
   });
 }
 
-module.exports = { upload, edit, getMyTracks, getAllTracks, deleteTrack };
+async function getLikedTracks(req, res, next) {
+  try {
+    console.log(req.user._id);
+
+    const tracks = await db.Track.find(
+      { likedBy: req.user._id },
+      { _id: 1, name: 1, url: 1, thumbnail: 1, likedBy: 1 }
+    );
+
+    res.status(200).send({ message: 'Liked tracks', tracks });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function likeTrack(req, res, next) {
+  try {
+    const id = req.params['id'];
+    const userId = req.user._id;
+
+    const updateLike = await db.Track.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      [
+        {
+          $set: {
+            likedBy: {
+              $cond: {
+                if: { $in: [userId, '$likedBy'] },
+                then: { $setDifference: ['$likedBy', [userId]] },
+                else: { $concatArrays: ['$likedBy', [userId]] },
+              },
+            },
+          },
+        },
+      ]
+    );
+    res.status(200).send({ message: 'hello world', updateLike });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  upload,
+  edit,
+  getMyTracks,
+  getAllTracks,
+  getLikedTracks,
+  likeTrack,
+  deleteTrack,
+};

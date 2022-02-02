@@ -15,7 +15,13 @@ const TrackSchema = new mongoose.Schema(
     userId: { type: String },
     genre: { type: mongoose.Schema.Types.ObjectId, ref: 'genre' },
     // albums: [albumId: String],
-    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+    likedBy: [ { type: String } ]
+    // likedBy: [
+    //   {
+    //     userId: { type: String },
+    //     liked: { type: Boolean },
+    //   }
+    // ]
   },
   { timestamps: true }
 );
