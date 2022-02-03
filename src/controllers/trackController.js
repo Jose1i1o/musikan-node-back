@@ -50,60 +50,54 @@ async function upload(req, res, next) {
 
     // Create the new track
     const newTrack = await TrackRepo.create(trackSchema);
-    if (newTrack.error){
-      res.status(400).send({ error: 'Error uploading your track' });
-      return;
+    if (newTrack.error) {
+      return res.status(400).send({ error: 'Error uploading your track' });
     }
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
-      res.status(201).send({
+      const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+      const tracks = getTracksWithGenres(updatedTracks.data);
+      return res.status(201).send({
         success: 'Your track has successfully uploaded',
-        data: {
-          _id: newTrack.data._id,
-          name: newTrack.data.name,
-          thumbnail: newTrack.data.thumbnail,
-          genre: newTrack.data.genre,
-        },
+        data: tracks,
       });
-      return;
     }
-    res.status(200).send({ success: 'Can not process your request' });
+
     next();
   } catch (err) {
     next(err);
   }
 }
 
+function getTracksWithGenres(listOfTracks) {
+  const tracks = listOfTracks.map((track) => {
+    return {
+      _id: track._id,
+      name: track.name,
+      thumbnail: track.thumbnail,
+      genre: track.genre.name,
+    };
+  });
+  return tracks;
+}
+
 async function getMyTracks(req, res, next) {
   try {
-    const findingTracks = await TrackRepo.find({
-      userId: req.user._id,
-    });
-    if (findingTracks.error){
-      res.status(400).send({ error: 'Error uploading your track' });
-      return;
+    const findingTracks = await TrackRepo.find({ userId: req.user._id });
+    if (findingTracks.error) {
+      return res.status(400).send({ error: 'Error uploading your track' });
     }
 
     if (findingTracks.data) {
-      const tracks = findingTracks.data.map((track) => {
-        return {
-          _id: track._id,
-          name: track.name,
-          thumbnail: track.thumbnail,
-          genre: track.genre.name,
-        };
-      });
+      const tracks = getTracksWithGenres(findingTracks.data);
 
-      res.status(200).send({
+      return res.status(200).send({
         success: 'Your tracks have been loaded',
         data: tracks,
       });
-      return;
     }
-    res.status(200).send({
-      message: 'You did not upload any tracks yet',
-    });
+
     next();
   } catch (error) {
     next(err);
@@ -133,25 +127,18 @@ async function edit(req, res, next) {
       new: true,
     });
 
-    if (updatedTrack.error){
-      res.status(400).send({ error: 'Error updating your track' });
-    console.log(updatedTrack);
-    return;
+    if (updatedTrack.error) {
+      return res.status(400).send({ error: 'Error updating your track' });
     }
 
     if (updatedTrack.data) {
-      res.status(200).send({
+      const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+      const tracks = getTracksWithGenres(updatedTracks.data);
+      return res.status(200).send({
         success: `Track ${updatedTrack.data.name} updated`,
-        data: {
-          _id: updatedTrack.data._id,
-          name: updatedTrack.data.name,
-          thumbnail: updatedTrack.data.thumbnail,
-          genre: updatedTrack.data.genre.name,
-        },
+        data: tracks,
       });
-      return;
     }
-    res.status(200).send({ message: 'Can not process your request' });
     next();
   } catch (err) {
     next(err);
@@ -162,21 +149,21 @@ async function deleteTrack(req, res, next) {
   const { id } = req.params;
 
   try {
-    const deletedTrack = await TrackRepo.findOneAndDelete({
+    const deletedTrack = await TrackRepo.deleteOne({
       _id: id,
       userId: req.user._id,
     });
+    console.log(req.user._id);
 
-    if (deletedTrack.error){
-      res.status(400).send({ error: 'Error deleting your track' });
-      return;
+    const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+    const tracks = getTracksWithGenres(updatedTracks.data);
+
+    if (deletedTrack.error) {
+      return res.status(400).send({ error: 'Error deleting your track' });
     }
-    else{
-    res
+    return res
       .status(200)
-      .send({ success: 'Your track has been deleted', data: { _id: id } });
-    next();
-    }
+      .send({ success: 'Your track has been deleted', data: tracks });
   } catch (err) {
     next(err);
   }
@@ -189,8 +176,7 @@ async function getLikedTracks(req, res, next) {
       { likedBy: req.user._id },
       { _id: 1, name: 1, url: 1, thumbnail: 1 }
     );
-    console.log(tracks);
-    if (tracks.error){
+    if (tracks.error) {
       res.status(400).send({ error: 'Error deleting your track' });
       return;
     }
@@ -238,7 +224,7 @@ async function likeTrack(req, res, next) {
       ],
       { new: true }
     );
-    if (updateLike.error){
+    if (updateLike.error) {
       res.status(400).send({ error: 'Error deleting your track' });
       return;
     }

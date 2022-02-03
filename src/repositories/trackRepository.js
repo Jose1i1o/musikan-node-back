@@ -13,8 +13,8 @@ class TrackRepository {
       db.Track.findByIdAndUpdate(filter, data, conditions).populate('genre')
     );
   }
-  findOneAndDelete(options) {
-    return normalizeDBQuery(db.Track.findOneAndDelete(options));
+  deleteOne(options) {
+    return normalizeDBQuery(db.Track.deleteOne(options));
   }
 }
 
