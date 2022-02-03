@@ -1,12 +1,13 @@
 function getPublicId(url) {
-    const splitedURL = url.split("/");
-    const lastItems = splitedURL.splice(7).join("/");
-    let publicId = lastItems.split(".")[0];
-  
-    return publicId;
-  }
-  
-  module.exports = {
-    getPublicId: getPublicId,
-  };
-  
+  const splitedURL = url.split('/');
+  console.log(splitedURL);
+  const lastItems = splitedURL.splice(7).join("/");
+  console.log(lastItems);
+  let publicId = lastItems.split(".")[0];
+  console.log(publicId);
+
+  return publicId;
+}
+
+module.exports = { getPublicId }
+

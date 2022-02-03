@@ -16,6 +16,10 @@ class TrackRepository {
   findOneAndDelete(options) {
     return normalizeDBQuery(db.Track.findOneAndDelete(options));
   }
+
+  findOne(options) {
+    return normalizeDBQuery(db.Track.findOne(options));
+  }
 }
 
 module.exports = new TrackRepository();

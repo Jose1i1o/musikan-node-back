@@ -2,6 +2,7 @@ const db = require('../models');
 const { TrackRepo } = require('../repositories');
 
 const { cloudinary } = require('../services/cloudinary');
+const { getPublicId } = require('../utils/cloudinaryUtils');
 
 async function upload(req, res, next) {
   const { name, genre } = req.body;
@@ -135,7 +136,6 @@ async function edit(req, res, next) {
 
     if (updatedTrack.error){
       res.status(400).send({ error: 'Error updating your track' });
-    console.log(updatedTrack);
     return;
     }
 
@@ -162,16 +162,27 @@ async function deleteTrack(req, res, next) {
   const { id } = req.params;
 
   try {
-    const deletedTrack = await TrackRepo.findOneAndDelete({
-      _id: id,
-      userId: req.user._id,
-    });
+    const track = await TrackRepo.findOne({ _id: id }, { url: 1, thumbnail: 1 });
+    const url = track.data.url;
+    const thumbnail = track.data.thumbnail;
 
-    if (deletedTrack.error){
+    // delete from cloudinary
+    const publicId = getPublicId(url); // get the public id from the url
+    console.log(publicId);
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'video' }); // delete the video from cloudinary. Resource type is video because we upload videos
+
+    const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
+    await cloudinary.uploader.destroy(publicIdThumbnail, {
+      resource_type: 'image',
+    }); // delete the thumbnail from cloudinary. Resource type is image because we upload images
+
+    const deleteTrack = await TrackRepo.findOneAndDelete(id);
+
+    if (deleteTrack.error){
       res.status(400).send({ error: 'Error deleting your track' });
       return;
     }
-    else{
+    if (deleteTrack.data){
     res
       .status(200)
       .send({ success: 'Your track has been deleted', data: { _id: id } });
@@ -189,7 +200,6 @@ async function getLikedTracks(req, res, next) {
       { likedBy: req.user._id },
       { _id: 1, name: 1, url: 1, thumbnail: 1 }
     );
-    console.log(tracks);
     if (tracks.error){
       res.status(400).send({ error: 'Error deleting your track' });
       return;
