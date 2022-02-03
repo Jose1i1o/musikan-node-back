@@ -13,9 +13,10 @@ TrackRouter.post(
   ]),
   trackController.upload
 );
-TrackRouter.patch(
+TrackRouter.put(
   '/:id',
   authMiddleware,
+  multerAudio.single('track'),
   multerImage.single('thumbnail'),
   trackController.edit
 );

@@ -118,6 +118,21 @@ async function edit(req, res, next) {
   const trackSchema = { name: name };
 
   try {
+
+    const track = await TrackRepo.findOne({ _id: id }, { url: 1, thumbnail: 1 });
+    const url = track.data.url;
+    const thumbnail = track.data.thumbnail;
+
+    // deletes sound from cloudinary
+    const publicId = getPublicId(url); // get the public id from the url
+    console.log(publicId);
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+    // deletes thumnail from cloudinary
+    const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
+    await cloudinary.uploader.destroy(publicIdThumbnail, {
+      resource_type: 'image',
+    });
+
     const uploadedPicture = await cloudinary.uploader.upload(req.file.path);
     trackSchema.thumbnail = uploadedPicture.secure_url;
 
@@ -166,15 +181,15 @@ async function deleteTrack(req, res, next) {
     const url = track.data.url;
     const thumbnail = track.data.thumbnail;
 
-    // delete from cloudinary
+    // deletes sound from cloudinary
     const publicId = getPublicId(url); // get the public id from the url
     console.log(publicId);
-    await cloudinary.uploader.destroy(publicId, { resource_type: 'video' }); // delete the video from cloudinary. Resource type is video because we upload videos
-
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+    // deletes thumnail from cloudinary
     const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
     await cloudinary.uploader.destroy(publicIdThumbnail, {
       resource_type: 'image',
-    }); // delete the thumbnail from cloudinary. Resource type is image because we upload images
+    });
 
     const deleteTrack = await TrackRepo.findOneAndDelete(id);
 
