@@ -139,8 +139,10 @@ async function editTrack(req, res, next) {
   const trackSchema = { name: name };
 
   try {
-    const uploadedPicture = await cloudinary.uploader.upload(req.file.path);
-    trackSchema.thumbnail = uploadedPicture.secure_url;
+    if (req.file) {
+      const uploadedPicture = await cloudinary.uploader.upload(req.file.path);
+      trackSchema.thumbnail = uploadedPicture.secure_url;
+    }
 
     const createdGenre = await db.Genre.findOne({ name: genre }).exec();
     if (createdGenre) {
