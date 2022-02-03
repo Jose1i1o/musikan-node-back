@@ -175,11 +175,6 @@ async function editTrack(req, res, next) {
     trackSchema.url = audio.secure_url;
     trackSchema.thumbnail = image.secure_url;
     
-    const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
-      new: true,
-    });
-    console.log('below updatedTrack')
-
     const createdGenre = await db.Genre.findOne({ name: genre }).exec();
     if (createdGenre) {
       trackSchema.genre = createdGenre._id;
@@ -187,76 +182,32 @@ async function editTrack(req, res, next) {
     if (!createdGenre) {
       const newGenre = await db.Genre.create({ name: genre });
       trackSchema.genre = newGenre._id;
-      return;
     }
 
-    if (updatedTrack.error){
+    const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
+      new: true,
+    });
+
+    if (updatedTrack.error) {
       res.status(400).send({ error: 'Error updating your track' });
-    return;
+      return;
     }
 
     if (updatedTrack.data) {
       const updatedTracks = await TrackRepo.find({ userId: req.user._id });
       const tracks = getTracksWithGenres(updatedTracks.data);
-
+      
       res.status(200).send({
         success: `Track ${updatedTrack.data.name} updated`,
         data: tracks,
       });
       return;
     }
+    next();
   } catch (err) {
     next(err);
   }
 }
-
-
-
-
-
-//       // deletes sound from cloudinary
-//       const publicId = getPublicId(url); // get the public id from the url
-//       const destroyTrack = cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
-//       // deletes thumnail from cloudinary
-//       const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
-//       const destroyThumbnail = cloudinary.uploader.destroy(publicIdThumbnail, {
-//         resource_type: 'image',
-//       });
-//       await Promise.all([destroyTrack, destroyThumbnail]);
-//       const uploadedPicture = await cloudinary.uploader.upload(req.file.path);
-//       trackSchema.thumbnail = uploadedPicture.secure_url;
-
-//     const createdGenre = await db.Genre.findOne({ name: genre }).exec();
-//     if (createdGenre) {
-//       trackSchema.genre = createdGenre._id;
-//     }
-//     if (!createdGenre) {
-//       const newGenre = await db.Genre.create({ name: genre });
-//       trackSchema.genre = newGenre._id;
-//     }
-
-//     const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
-//       new: true,
-//     });
-
-//     if (updatedTrack.error){
-//       res.status(400).send({ error: 'Error updating your track' });
-//     return;
-//     }
-
-//     if (updatedTrack.data) {
-//       const updatedTracks = await TrackRepo.find({ userId: req.user._id });
-//       const tracks = getTracksWithGenres(updatedTracks.data);
-//       return res.status(200).send({
-//         success: `Track ${updatedTrack.data.name} updated`,
-//         data: tracks,
-//       });
-//     }
-//     next();
-//   } catch (err) {
-//     next(err);
-//   }
-// }
 
 async function deleteTrack(req, res, next) {
   const id = req.params['id'];
