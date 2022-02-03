@@ -11,21 +11,23 @@ TrackRouter.post(
     { name: 'track', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 },
   ]),
-  trackController.upload
+  trackController.uploadTrack
 );
 TrackRouter.put(
   '/:id',
   authMiddleware,
   multerAudio.single('track'),
   multerImage.single('thumbnail'),
-  trackController.edit
+  trackController.editTrack
+);
+TrackRouter.get(
+  '/:id',
+  authMiddleware,
+  multerImage.single('thumbnail'),
+  trackController.getTrack
 );
 
-TrackRouter.put(
-  '/:id/like',
-  authMiddleware,
-  trackController.likeTrack
-)
+TrackRouter.put('/:id/like', authMiddleware, trackController.likeTrack);
 
 TrackRouter.delete('/:id', authMiddleware, trackController.deleteTrack);
 

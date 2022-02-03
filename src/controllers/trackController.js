@@ -4,7 +4,7 @@ const { TrackRepo } = require('../repositories');
 const { cloudinary } = require('../services/cloudinary');
 const { getPublicId } = require('../utils/cloudinaryUtils');
 
-async function upload(req, res, next) {
+async function uploadTrack(req, res, next) {
   const { name, genre } = req.body;
   try {
     // Upload audio to cloudinary
@@ -51,25 +51,60 @@ async function upload(req, res, next) {
 
     // Create the new track
     const newTrack = await TrackRepo.create(trackSchema);
-    if (newTrack.error){
-      res.status(400).send({ error: 'Error uploading your track' });
-      return;
+    if (newTrack.error) {
+      return res.status(400).send({ error: 'Error uploading your track' });
     }
 
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
-      res.status(201).send({
+      const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+      const tracks = getTracksWithGenres(updatedTracks.data);
+      return res.status(201).send({
         success: 'Your track has successfully uploaded',
+        data: tracks,
+      });
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+function getTracksWithGenres(listOfTracks) {
+  const tracks = listOfTracks.map((track) => {
+    return {
+      _id: track._id,
+      name: track.name,
+      thumbnail: track.thumbnail,
+      genre: track.genre.name,
+    };
+  });
+  return tracks;
+}
+
+async function getTrack(req, res, next) {
+  try {
+    const foundTrack = await TrackRepo.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (foundTrack.error) {
+      return res.status(400).send({ error: 'Error searching your track' });
+    }
+    if (foundTrack.data) {
+      return res.status(200).send({
+        success: 'Track found',
         data: {
-          _id: newTrack.data._id,
-          name: newTrack.data.name,
-          thumbnail: newTrack.data.thumbnail,
-          genre: newTrack.data.genre,
+          _id: foundTrack.data._id,
+          name: foundTrack.data.name,
+          thumbnail: foundTrack.data.thumbnail,
+          genre: foundTrack.data.genre.name,
         },
       });
-      return;
     }
-    res.status(200).send({ success: 'Can not process your request' });
+
     next();
   } catch (err) {
     next(err);
@@ -78,40 +113,27 @@ async function upload(req, res, next) {
 
 async function getMyTracks(req, res, next) {
   try {
-    const findingTracks = await TrackRepo.find({
-      userId: req.user._id,
-    });
-    if (findingTracks.error){
-      res.status(400).send({ error: 'Error uploading your track' });
-      return;
+    const findingTracks = await TrackRepo.find({ userId: req.user._id });
+    if (findingTracks.error) {
+      return res.status(400).send({ error: 'Error uploading your track' });
     }
 
     if (findingTracks.data) {
-      const tracks = findingTracks.data.map((track) => {
-        return {
-          _id: track._id,
-          name: track.name,
-          thumbnail: track.thumbnail,
-          genre: track.genre.name,
-        };
-      });
+      const tracks = getTracksWithGenres(findingTracks.data);
 
-      res.status(200).send({
+      return res.status(200).send({
         success: 'Your tracks have been loaded',
         data: tracks,
       });
-      return;
     }
-    res.status(200).send({
-      message: 'You did not upload any tracks yet',
-    });
+
     next();
   } catch (error) {
     next(err);
   }
 }
 
-async function edit(req, res, next) {
+async function editTrack(req, res, next) {
   const { id } = req.params;
   const { name, genre } = req.body;
 
@@ -123,11 +145,11 @@ async function edit(req, res, next) {
     const url = track.data.url;
     const thumbnail = track.data.thumbnail;
 
-    // deletes sound from cloudinary
+    // deletes sound and profile from cloudinary
     const publicId = getPublicId(url); // get the public id from the url
     console.log(publicId);
     await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
-    // deletes thumnail from cloudinary
+
     const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
     await cloudinary.uploader.destroy(publicIdThumbnail, {
       resource_type: 'image',
@@ -155,18 +177,13 @@ async function edit(req, res, next) {
     }
 
     if (updatedTrack.data) {
-      res.status(200).send({
+      const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+      const tracks = getTracksWithGenres(updatedTracks.data);
+      return res.status(200).send({
         success: `Track ${updatedTrack.data.name} updated`,
-        data: {
-          _id: updatedTrack.data._id,
-          name: updatedTrack.data.name,
-          thumbnail: updatedTrack.data.thumbnail,
-          genre: updatedTrack.data.genre.name,
-        },
+        data: tracks,
       });
-      return;
     }
-    res.status(200).send({ message: 'Can not process your request' });
     next();
   } catch (err) {
     next(err);
@@ -174,7 +191,8 @@ async function edit(req, res, next) {
 }
 
 async function deleteTrack(req, res, next) {
-  const { id } = req.params;
+  const id = req.params['id'];
+  console.log(id);
 
   try {
     const track = await TrackRepo.findOne({ _id: id }, { url: 1, thumbnail: 1 });
@@ -184,14 +202,22 @@ async function deleteTrack(req, res, next) {
     // deletes sound from cloudinary
     const publicId = getPublicId(url); // get the public id from the url
     console.log(publicId);
-    await cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+    const destroyTrack = cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
     // deletes thumnail from cloudinary
     const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
-    await cloudinary.uploader.destroy(publicIdThumbnail, {
+    const destroyThumbnail = cloudinary.uploader.destroy(publicIdThumbnail, {
       resource_type: 'image',
     });
 
-    const deleteTrack = await TrackRepo.findOneAndDelete(id);
+    await Promise.all([destroyTrack, destroyThumbnail]);
+
+    const deleteTrack = await TrackRepo.deleteOne({
+      _id: id,
+      userId: req.user._id,
+    });
+    const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+    const tracks = getTracksWithGenres(updatedTracks.data);
+    
 
     if (deleteTrack.error){
       res.status(400).send({ error: 'Error deleting your track' });
@@ -200,8 +226,7 @@ async function deleteTrack(req, res, next) {
     if (deleteTrack.data){
     res
       .status(200)
-      .send({ success: 'Your track has been deleted', data: { _id: id } });
-    next();
+      .send({ success: 'Your track has been deleted', data: tracks });
     }
   } catch (err) {
     next(err);
@@ -263,7 +288,7 @@ async function likeTrack(req, res, next) {
       ],
       { new: true }
     );
-    if (updateLike.error){
+    if (updateLike.error) {
       res.status(400).send({ error: 'Error deleting your track' });
       return;
     }
@@ -284,10 +309,11 @@ async function likeTrack(req, res, next) {
 }
 
 module.exports = {
-  upload,
-  edit,
+  uploadTrack,
+  editTrack,
   getMyTracks,
   getLikedTracks,
   likeTrack,
   deleteTrack,
+  getTrack,
 };
