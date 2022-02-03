@@ -73,6 +73,7 @@ async function uploadTrack(req, res, next) {
 
 function getTracksWithGenres(listOfTracks) {
   const tracks = listOfTracks.map((track) => {
+    console.log(track);
     return {
       _id: track._id,
       name: track.name,
@@ -115,13 +116,22 @@ async function getTrack(req, res, next) {
 async function getMyTracks(req, res, next) {
   try {
     const findingTracks = await TrackRepo.find({ userId: req.user._id });
+    console.log(findingTracks.data);
+    const tracks = findingTracks.data.map((track) => {
+      return {
+        _id: track._id,
+        name: track.name,
+        thumbnail: track.thumbnail,
+        genre: track.genre.name,
+        like: track.likedBy.includes(req.user._id) ? true : false,
+      };
+    });
+
     if (findingTracks.error) {
       return res.status(400).send({ error: 'Error uploading your track' });
     }
 
     if (findingTracks.data) {
-      const tracks = getTracksWithGenres(findingTracks.data);
-
       return res.status(200).send({
         success: 'Your tracks have been loaded',
         data: tracks,
@@ -141,7 +151,6 @@ async function editTrack(req, res, next) {
   const trackSchema = { name: name, genre: genre};
 
   try {
-
     const track = await TrackRepo.findOne({ _id: id }, { _id: 1, name: 1, genre: 1, url: 1, thumbnail: 1 });
     const url = track.data.url;
     const thumbnail = track.data.thumbnail;
