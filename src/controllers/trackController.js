@@ -135,20 +135,14 @@ async function getMyTracks(req, res, next) {
 }
 
 async function editTrack(req, res, next) {
-  console.log('here');
   const { id } = req.params;
-  console.log(id);
-  const { name, genre, url } = req.body;
-  const { thumbnail } = req.files;
-  console.log('name', name);
-  console.log('genre', genre);
+  const { name, genre } = req.body;
 
-  const trackSchema = { name: name };
+  const trackSchema = { name: name, genre: genre};
 
   try {
 
-    const track = await TrackRepo.findOne({ _id: id }, { url: 1, thumbnail: 1 });
-    console.log('track', track);
+    const track = await TrackRepo.findOne({ _id: id }, { _id: 1, name: 1, genre: 1, url: 1, thumbnail: 1 });
     const url = track.data.url;
     const thumbnail = track.data.thumbnail;
 
@@ -159,37 +153,32 @@ async function editTrack(req, res, next) {
       const destroyTrack = cloudinary.uploader.destroy(getPublicId(url), { resource_type: 'video' });
 
       await Promise.all([destroyTrack, destroyThumbnail]);
+      console.log('Track and thumbnail deleted from cloudinary');
     }
     
-    console.log('above uploadedAudio')
-    const uploadedAudio = cloudinary.uploader.upload(req.file.path, {
+    const uploadedAudio = cloudinary.uploader.upload(req.files.track[0].path, {
       resource_type: 'video',
       folder: 'tracks',
     });
-
-    console.log(uploadedAudio)
-
-    const uploadedImage = cloudinary.uploader.upload(
-      req.file.path,
-      {
-        resource_type: 'image',
-        folder: 'tracks-thumbnails',
-      }
-    );
-    console.log('I am here')
-
+    
+    const uploadedImage = cloudinary.uploader.upload(req.files.thumbnail[0].path, {
+      resource_type: 'image',
+      folder: 'tracks-thumbnails',
+    });
+    
+    
     const uploads = await Promise.all([uploadedAudio, uploadedImage]);
-
+    
     const audio = uploads[0];
     const image = uploads[1];
-
+    
     trackSchema.url = audio.secure_url;
     trackSchema.thumbnail = image.secure_url;
-
-    const updatedTrack = await TrackRepo.update({ _id: id }, trackSchema);
-    if (updatedTrack.error) {
-      return res.status(400).send({ error: 'Error updating your track' });
-    }
+    
+    const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
+      new: true,
+    });
+    console.log('below updatedTrack')
 
     const createdGenre = await db.Genre.findOne({ name: genre }).exec();
     if (createdGenre) {
@@ -198,24 +187,30 @@ async function editTrack(req, res, next) {
     if (!createdGenre) {
       const newGenre = await db.Genre.create({ name: genre });
       trackSchema.genre = newGenre._id;
+      return;
     }
 
-    const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
-      new: true,
-    });
+    if (updatedTrack.error){
+      res.status(400).send({ error: 'Error updating your track' });
+    return;
+    }
 
+    if (updatedTrack.data) {
+      const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+      const tracks = getTracksWithGenres(updatedTracks.data);
 
-    const updatedTracks = await TrackRepo.find({ userId: req.user._id });
-    const tracks = getTracksWithGenres(updatedTracks.data);
-
-    return res.status(200).send({
-      success: 'Track updated',
-      data: tracks,
-    });
+      res.status(200).send({
+        success: `Track ${updatedTrack.data.name} updated`,
+        data: tracks,
+      });
+      return;
+    }
   } catch (err) {
     next(err);
   }
 }
+
+
 
 
 
