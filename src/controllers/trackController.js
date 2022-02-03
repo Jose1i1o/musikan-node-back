@@ -3,7 +3,7 @@ const { TrackRepo } = require('../repositories');
 
 const { cloudinary } = require('../services/cloudinary');
 
-async function upload(req, res, next) {
+async function uploadTrack(req, res, next) {
   const { name, genre } = req.body;
   try {
     // Upload audio to cloudinary
@@ -82,6 +82,34 @@ function getTracksWithGenres(listOfTracks) {
   return tracks;
 }
 
+async function getTrack(req, res, next) {
+  try {
+    const foundTrack = await TrackRepo.findOne({
+      _id: req.params.id,
+      userId: req.user._id,
+    });
+
+    if (foundTrack.error) {
+      return res.status(400).send({ error: 'Error searching your track' });
+    }
+    if (foundTrack.data) {
+      return res.status(200).send({
+        success: 'Track found',
+        data: {
+          _id: foundTrack.data._id,
+          name: foundTrack.data.name,
+          thumbnail: foundTrack.data.thumbnail,
+          genre: foundTrack.data.genre.name,
+        },
+      });
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function getMyTracks(req, res, next) {
   try {
     const findingTracks = await TrackRepo.find({ userId: req.user._id });
@@ -104,7 +132,7 @@ async function getMyTracks(req, res, next) {
   }
 }
 
-async function edit(req, res, next) {
+async function editTrack(req, res, next) {
   const { id } = req.params;
   const { name, genre } = req.body;
 
@@ -245,10 +273,11 @@ async function likeTrack(req, res, next) {
 }
 
 module.exports = {
-  upload,
-  edit,
+  uploadTrack,
+  editTrack,
   getMyTracks,
   getLikedTracks,
   likeTrack,
   deleteTrack,
+  getTrack,
 };
