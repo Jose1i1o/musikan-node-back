@@ -42,8 +42,8 @@ const playlistSchema = new mongoose.Schema(
             maxCount: 5,
         },
         userId: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'users',
+            type: String,
+            trim: true,
         },
         tracks: [{
             type: mongoose.Schema.Types.ObjectId,
