@@ -157,15 +157,15 @@ async function editTrack(req, res, next) {
         cloudinary.uploader.destroy(publicId, {
           resource_type: 'image',
         });
+
+        const uploadedImage = cloudinary.uploader.upload(req.file.path, {
+          resource_type: 'image',
+          folder: 'tracks-thumbnails',
+        });
+
+        trackSchema.thumbnail = uploadedImage.secure_url;
       }
     }
-
-    const uploadedImage = cloudinary.uploader.upload(req.file.path, {
-      resource_type: 'image',
-      folder: 'tracks-thumbnails',
-    });
-
-    trackSchema.thumbnail = uploadedImage.secure_url;
 
     const updatedTrack = await TrackRepo.findByIdAndUpdate(id, trackSchema, {
       new: true,

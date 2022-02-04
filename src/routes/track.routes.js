@@ -13,7 +13,7 @@ TrackRouter.post(
   ]),
   trackController.uploadTrack
 );
-TrackRouter.put(
+TrackRouter.patch(
   '/:id',
   authMiddleware,
   multerImage.single('thumbnail'),
