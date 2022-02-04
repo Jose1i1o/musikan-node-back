@@ -79,7 +79,7 @@ function getTracksWithGenres(listOfTracks) {
       name: track.name,
       thumbnail: track.thumbnail,
       genre: track.genre.name,
-      url: track.url
+      url: track.url,
     };
   });
   return tracks;
@@ -148,42 +148,51 @@ async function editTrack(req, res, next) {
   const { id } = req.params;
   const { name, genre } = req.body;
 
-  const trackSchema = { name: name, genre: genre};
+  const trackSchema = { name: name, genre: genre };
 
   try {
-    const track = await TrackRepo.findOne({ _id: id }, { _id: 1, name: 1, genre: 1, url: 1, thumbnail: 1 });
+    const track = await TrackRepo.findOne(
+      { _id: id },
+      { _id: 1, name: 1, genre: 1, url: 1, thumbnail: 1 }
+    );
     const url = track.data.url;
     const thumbnail = track.data.thumbnail;
 
     // if thumbnail existes, delete it from cloudinary
     if (url.length > 0 || thumbnail.length > 0) {
       const publicId = getPublicId(thumbnail);
-      const destroyThumbnail = cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
-      const destroyTrack = cloudinary.uploader.destroy(getPublicId(url), { resource_type: 'video' });
+      const destroyThumbnail = cloudinary.uploader.destroy(publicId, {
+        resource_type: 'image',
+      });
+      const destroyTrack = cloudinary.uploader.destroy(getPublicId(url), {
+        resource_type: 'video',
+      });
 
       await Promise.all([destroyTrack, destroyThumbnail]);
       console.log('Track and thumbnail deleted from cloudinary');
     }
-    
+
     const uploadedAudio = cloudinary.uploader.upload(req.files.track[0].path, {
       resource_type: 'video',
       folder: 'tracks',
     });
-    
-    const uploadedImage = cloudinary.uploader.upload(req.files.thumbnail[0].path, {
-      resource_type: 'image',
-      folder: 'tracks-thumbnails',
-    });
-    
-    
+
+    const uploadedImage = cloudinary.uploader.upload(
+      req.files.thumbnail[0].path,
+      {
+        resource_type: 'image',
+        folder: 'tracks-thumbnails',
+      }
+    );
+
     const uploads = await Promise.all([uploadedAudio, uploadedImage]);
-    
+
     const audio = uploads[0];
     const image = uploads[1];
-    
+
     trackSchema.url = audio.secure_url;
     trackSchema.thumbnail = image.secure_url;
-    
+
     const createdGenre = await db.Genre.findOne({ name: genre }).exec();
     if (createdGenre) {
       trackSchema.genre = createdGenre._id;
@@ -205,7 +214,7 @@ async function editTrack(req, res, next) {
     if (updatedTrack.data) {
       const updatedTracks = await TrackRepo.find({ userId: req.user._id });
       const tracks = getTracksWithGenres(updatedTracks.data);
-      
+
       res.status(200).send({
         success: `Track ${updatedTrack.data.name} updated`,
         data: tracks,
@@ -223,13 +232,18 @@ async function deleteTrack(req, res, next) {
   console.log(id);
 
   try {
-    const track = await TrackRepo.findOne({ _id: id }, { url: 1, thumbnail: 1 });
+    const track = await TrackRepo.findOne(
+      { _id: id },
+      { url: 1, thumbnail: 1 }
+    );
     const url = track.data.url;
     const thumbnail = track.data.thumbnail;
 
     // deletes sound from cloudinary
     const publicId = getPublicId(url); // get the public id from the url
-    const destroyTrack = cloudinary.uploader.destroy(publicId, { resource_type: 'video' });
+    const destroyTrack = cloudinary.uploader.destroy(publicId, {
+      resource_type: 'video',
+    });
     // deletes thumnail from cloudinary
     const publicIdThumbnail = getPublicId(thumbnail); // get the public id from the thumbnail url
     const destroyThumbnail = cloudinary.uploader.destroy(publicIdThumbnail, {
@@ -244,16 +258,15 @@ async function deleteTrack(req, res, next) {
     });
     const updatedTracks = await TrackRepo.find({ userId: req.user._id });
     const tracks = getTracksWithGenres(updatedTracks.data);
-    
 
-    if (deleteTrack.error){
+    if (deleteTrack.error) {
       res.status(400).send({ error: 'Error deleting your track' });
       return;
     }
-    if (deleteTrack.data){
-    res
-      .status(200)
-      .send({ success: 'Your track has been deleted', data: tracks });
+    if (deleteTrack.data) {
+      res
+        .status(200)
+        .send({ success: 'Your track has been deleted', data: tracks });
     }
   } catch (err) {
     next(err);
@@ -267,7 +280,7 @@ async function getLikedTracks(req, res, next) {
       { likedBy: req.user._id },
       { _id: 1, name: 1, url: 1, thumbnail: 1 }
     );
-    if (tracks.error){
+    if (tracks.error) {
       res.status(400).send({ error: 'Error deleting your track' });
       return;
     }
@@ -335,6 +348,29 @@ async function likeTrack(req, res, next) {
   }
 }
 
+async function playTrack(req, res, next) {
+  const track = await TrackRepo.find({ _id: req.params.id });
+
+  if (track.error) {
+    return res.status(400).send({ error: 'Can not load your track' });
+  }
+  if (track.data) {
+    const { _id, name, thumbnail, url } = track.data[0];
+    console.log(track.data[0]);
+    return res.status(200).send({
+      success: 'Track found',
+      data: {
+        _id: _id,
+        name: name,
+        thumbnail: thumbnail,
+        url: url,
+      },
+    });
+  }
+
+  next();
+}
+
 module.exports = {
   uploadTrack,
   editTrack,
@@ -343,4 +379,5 @@ module.exports = {
   likeTrack,
   deleteTrack,
   getTrack,
+  playTrack,
 };

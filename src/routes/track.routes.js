@@ -29,6 +29,13 @@ TrackRouter.get(
   trackController.getTrack
 );
 
+TrackRouter.get(
+  '/:id/play',
+  authMiddleware,
+  multerImage.single('thumbnail'),
+  trackController.playTrack
+);
+
 TrackRouter.put('/:id/like', authMiddleware, trackController.likeTrack);
 
 TrackRouter.delete('/:id', authMiddleware, trackController.deleteTrack);
