@@ -207,19 +207,17 @@ async function editTrack(req, res, next) {
     });
 
     if (updatedTrack.error) {
-      res.status(400).send({ error: 'Error updating your track' });
-      return;
+      return res.status(400).send({ error: 'Error updating your track' });
     }
 
     if (updatedTrack.data) {
       const updatedTracks = await TrackRepo.find({ userId: req.user._id });
       const tracks = getTracksWithGenres(updatedTracks.data);
 
-      res.status(200).send({
+      return res.status(200).send({
         success: `Track ${updatedTrack.data.name} updated`,
         data: tracks,
       });
-      return;
     }
     next();
   } catch (err) {
@@ -260,14 +258,14 @@ async function deleteTrack(req, res, next) {
     const tracks = getTracksWithGenres(updatedTracks.data);
 
     if (deleteTrack.error) {
-      res.status(400).send({ error: 'Error deleting your track' });
-      return;
+      return res.status(400).send({ error: 'Error deleting your track' });
     }
     if (deleteTrack.data) {
-      res
+      return res
         .status(200)
         .send({ success: 'Your track has been deleted', data: tracks });
     }
+    next();
   } catch (err) {
     next(err);
   }
@@ -278,7 +276,7 @@ async function getLikedTracks(req, res, next) {
   try {
     const tracks = await TrackRepo.find(
       { likedBy: req.user._id },
-      { _id: 1, name: 1, url: 1, thumbnail: 1 }
+      { _id: 1, name: 1, url: 1, thumbnail: 1, userId: 1 }
     );
     if (tracks.error) {
       res.status(400).send({ error: 'Error deleting your track' });
@@ -287,18 +285,19 @@ async function getLikedTracks(req, res, next) {
 
     if (tracks.data) {
       const filteredTracks = tracks.data.map((track) => {
+        console.log(tracks);
         return {
           _id: track._id,
           name: track.name,
           thumbnail: track.thumbnail,
           genre: track.genre.name,
+          owner: track.userId === req.user._id ? true : false,
         };
       });
 
       res.status(200).send({ success: 'Liked tracks', data: filteredTracks });
       return;
     }
-    res.status(200).send({ message: 'You did not like any track yet' });
     next();
   } catch (err) {
     next(err);
