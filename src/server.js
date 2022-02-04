@@ -31,6 +31,6 @@ app.use('/api/user', UserRouter);
 app.use('/api/tracks', TrackRouter);
 app.use('/api/genre', GenreRouter);
 app.use('/api/me', MeRouter);
-app.use('api/playlist', PlaylistRouter);
+app.use('/api/playlist', PlaylistRouter);
 
 module.exports = app;

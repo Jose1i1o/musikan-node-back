@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 // const validator = require('validator');
 
-const playlistSchema = new Schema(
+const playlistSchema = new mongoose.Schema(
     {
         name: { 
             type: String,
             trim: true,
-            required: [true, 'You need to provide a name for your playlist']
+            // required: [true, 'You need to provide a name for your playlist']
         },
         collaborative: {
             type: Boolean,
@@ -59,6 +59,6 @@ const playlistSchema = new Schema(
     }
 );
 
-const playlistModel = new mongoose.Model('playlist', playlistSchema);
+const playlistModel = mongoose.model('playlist', playlistSchema);
 
 module.exports = playlistModel;

@@ -6,21 +6,22 @@ const { getPublicId } = require('../utils/cloudinaryUtils');
 
 async function createPlaylist(req, res, next) {
     try {
-
+        console.log('Creating playlist');
+        res.status(201).send({ message: 'Playlist created' });
     }
     catch (err) {
-        next(err);
+        console.log('err');
     }
 }
 
-async function yourFunction(req, res, next) {
-    try {
+// async function yourFunction(req, res, next) {
+//     try {
 
-    }
-    catch (err) {
-        next(err);
-    }
-}
+//     }
+//     catch (err) {
+//         next(err);
+//     }
+// }
 
 module.exports = {
     createPlaylist,
