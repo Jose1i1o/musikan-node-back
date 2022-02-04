@@ -51,6 +51,8 @@ async function uploadTrack(req, res, next) {
 
     // Create the new track
     const newTrack = await TrackRepo.create(trackSchema);
+    console.log(newTrack.error);
+    console.log(newTrack.data);
     if (newTrack.error) {
       return res.status(400).send({ error: 'Error uploading your track' });
     }

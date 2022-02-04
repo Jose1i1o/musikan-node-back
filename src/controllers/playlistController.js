@@ -6,76 +6,66 @@ const { cloudinary } = require('../services/cloudinary');
 const { getPublicId } = require('../utils/cloudinaryUtils');
 
 function getPlaylists(ListOfPlaylists) {
-    const playlist = ListOfPlaylists.map((playlist, index) => {
-        const { _id, name, description, thumbnail, publicAccessible } = playlist;
-        const playlistObj = {
-            _id,
-            name,
-            description,
-            thumbnail,
-            publicAccessible,
+    const playlists = ListOfPlaylists.map((playlist) => {
+        return {
+            id: playlist._id,
+            name: playlist.name,
+            description: playlist.description,
+            thumbnail: playlist.thumbnail,
+            user: playlist.user,
+            publicAccessible: playlist.publicAccessible,
         };
-        return playlistObj;
     });
-    return playlist;
+    return playlists;
 }
 
 async function createPlaylist(req, res, next) {
     try {
         const { _id } = req.user;
         const findUser = await UserRepo.findOne({ _id });
-        const playlistData = {};
-        
+        const playlistData = {
+            name: req.body.name,
+            description: req.body.description,
+            thumbnail: req.files.thumbnail[0].path,
+            publicAccessible: req.body.publicAccessible,
+            user: findUser.data._id,
+        };
+
         if (findUser.error) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
         }
         
         if (findUser.data) {
-            const { name, description, publicAccessible } = req.body;
-            const thumbnailPicture = await cloudinary.uploader.upload(req.files.thumbnail[0].path,
+            const { name, description, publicAccessible, user, thumbnail } = playlistData;
+            const thumbnailPicture = await cloudinary.uploader.upload(thumbnail,
                 {
-                  resource_type: 'image',
-                  folder: 'playlists',
+                    resource_type: 'image',
+                    folder: 'playlists',
                 });
-            playlistData.userId = findUser.data._id;
-            playlistData.name = name;
-            playlistData.description = description;
-            playlistData.thumbnail = thumbnailPicture.secure_url;
-            playlistData.publicAccessible = publicAccessible;
-        }
-        const newPlaylist = await db.Playlist.create(playlistData);
-        console.log('newPlaylist', newPlaylist);
-
-        if (newPlaylist.error) {
-            console.log('newPlaylist.error', newPlaylist.error);
-            res.status(400).send({ error: 'Error updating your track' });
-            return;
-        }
-        if (newPlaylist.data) {
-            console.log('newPlaylist.error', newPlaylist.data);
-          const updatedPlaylists = await db.Playlist.find({ userId: req.user._id });
-          const playlists = getPlaylists(updatedPlaylists.data);
-          
-          res.status(200).send({
-            success: `Playlist ${updatedPlaylists.data.name} updated`,
-            data: playlists,
-          });
-          return;
-        }
-        next();
+                playlistData.user = user;
+                playlistData.name = name;
+                playlistData.description = description;
+                playlistData.thumbnail = thumbnailPicture.secure_url;
+                playlistData.publicAccessible = publicAccessible;
+                
+                await db.Playlist.create(playlistData);
+                console.log(playlistData);
+            }
+        
+        // return all the playlists from this user
+        const playlists = await db.Playlist.find({ user: findUser.data._id }).exec();
+        const playlistsList = getPlaylists(playlists);
+        return res.status(200).send({
+            message: "Playlist created successfully",
+            playlists: playlistsList
+        });
     } catch (error) {
-        res.status(400).send({ error: 'Error creating playlist' });
+      res.status(500).send({
+        error: error.message,
+      });
+      next(error);
     }
 }
-
-// async function yourFunction(req, res, next) {
-//     try {
-
-//     }
-//     catch (err) {
-//         next(err);
-//     }
-// }
 
 module.exports = {
     createPlaylist,
