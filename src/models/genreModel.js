@@ -2,9 +2,14 @@ const mongoose = require('mongoose');
 
 const GenreSchema = new mongoose.Schema(
   {
+    _id: {
+      type: String,
+      unique: true,
+    },
     name: {
       type: String,
       unique: true,
+      trim: true,
     },
     popularity: {
       type: Number,

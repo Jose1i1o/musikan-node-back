@@ -8,8 +8,10 @@ class TrackRepository {
   find(filter, options) {
     return normalizeDBQuery(db.Track.find(filter, options).populate('genre'));
   }
-  findOne(filter) {
-    return normalizeDBQuery(db.Track.findOne(filter).populate('genre'));
+  findOne(filter, options) {
+    return normalizeDBQuery(
+      db.Track.findOne(filter, options).populate('genre')
+    );
   }
   findByIdAndUpdate(filter, data, conditions) {
     return normalizeDBQuery(
@@ -18,10 +20,6 @@ class TrackRepository {
   }
   deleteOne(options) {
     return normalizeDBQuery(db.Track.deleteOne(options));
-  }
-
-  findOne(options) {
-    return normalizeDBQuery(db.Track.findOne(options));
   }
 
   findOneAndDelete(options) {

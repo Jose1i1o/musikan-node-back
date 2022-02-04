@@ -16,10 +16,7 @@ TrackRouter.post(
 TrackRouter.put(
   '/:id',
   authMiddleware,
-  multerAudio.fields([
-    { name: 'track', maxCount: 1 },
-    { name: 'thumbnail', maxCount: 1 },
-  ]),
+  multerImage.single('thumbnail'),
   trackController.editTrack
 );
 TrackRouter.get(
