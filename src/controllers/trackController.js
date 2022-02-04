@@ -258,8 +258,9 @@ async function getLikedTracks(req, res, next) {
         };
       });
 
-      res.status(200).send({ success: 'Liked tracks', data: filteredTracks });
-      return;
+      return res
+        .status(200)
+        .send({ success: 'Liked tracks', data: filteredTracks });
     }
     next();
   } catch (err) {
@@ -291,20 +292,17 @@ async function likeTrack(req, res, next) {
       { new: true }
     );
     if (updateLike.error) {
-      res.status(400).send({ error: 'Error deleting your track' });
-      return;
+      return res.status(400).send({ error: 'Error deleting your track' });
     }
     if (updateLike.data) {
       const like = updateLike.data.likedBy.includes(userId) ? true : false;
-      res.status(200).send({
+      return res.status(200).send({
         success: like
           ? 'You like a new track'
           : 'You do not like a track anymore',
         data: { _id: updateLike.data._id, like: like },
       });
-      return;
     }
-    res.status(200).send({ message: 'Can not process your like request' });
   } catch (err) {
     next(err);
   }
