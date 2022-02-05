@@ -152,15 +152,15 @@ async function editTrack(req, res, next) {
 
     // if thumbnail existes, delete it from cloudinary
 
-    if (req.body.thumbnail) {
+    if (req.file) {
       const publicId = await getPublicId(thumbnail);
 
       if (publicId) {
-        cloudinary.uploader.destroy(publicId, {
+        await cloudinary.uploader.destroy(publicId, {
           resource_type: 'image',
         });
 
-        const uploadedImage = cloudinary.uploader.upload(req.file.path, {
+        const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
           resource_type: 'image',
           folder: 'tracks-thumbnails',
         });
