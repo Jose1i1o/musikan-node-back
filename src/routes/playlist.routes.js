@@ -13,4 +13,14 @@ PlaylistRouter.post(
       ]),
     playlistController.createPlaylist);
 
+PlaylistRouter.get(
+    '/',
+    authMiddleware,
+    playlistController.getUserPlaylists);
+
+PlaylistRouter.put(
+    '/:id/follow',
+    authMiddleware,
+    playlistController.followPlaylist);
+
 module.exports = PlaylistRouter;
