@@ -16,7 +16,9 @@ PlaylistRouter.post(
 PlaylistRouter.get(
     '/',
     authMiddleware,
-    playlistController.getUserPlaylists);
+    playlistController.getAllPlaylists);
+
+
 
 PlaylistRouter.put(
     '/:id/follow',

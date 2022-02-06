@@ -70,38 +70,43 @@ async function createPlaylist(req, res, next) {
     }
 }
 
-async function getUserPlaylists(req, res, next) {
+async function getAllPlaylists(req, res, next) {
     try {
-    //     const _id = req.user._id;
-    //     const user = await UserRepo.findOne({ _id: _id });
-    //     if (user.error) {
-    //         return res.status(400).send({ error: 'The user has not been found, please try again' });
-    //     }
-    //     if (user.data) {
-    //         const playlistsFound = await db.Playlist.aggregate([
-    //             {
-    //                 $match: {
-    //                     $or: [{ publicAccessible: true }, { user: _id }]
-    //                 },
-    //             },
-    //             {
-    //                 $project: {
-    //                     name: 1,
-    //                     description: 1,
-    //                     thumbnail: 1,
-    //                     publicAccessible: 1,
-    //                     follows: { $size: { $ifNull: ["$follows", []] } },
-    //                     isFollowed
-    //                 },
-    //             },
-    //         ]).exec();
-    //         const playlistsList = getPlaylists(playlistsFound);
-    //         return res.status(200).send({
-    //             message: "Playlists found",
-    //             playlists: playlistsList
-    //         });
-    //     }
-    //     next();
+        const _id = req.user._id;
+        const user = await UserRepo.findOne({ _id });
+        if (user.error) {
+            return res.status(400).send({ error: 'The user has not been found, please try again' });
+        }
+        if (user.data) {
+            const playlistsFound = await db.Playlist.aggregate([
+                {
+                    $match: {
+                        $or: [{ publicAccessible: true }, { user: _id }]
+                    },
+                },
+                {
+                    $project: {
+                        name: 1,
+                        description: 1,
+                        thumbnail: 1,
+                        publicAccessible: 1,
+                        follows: { $size: { $ifNull: ["$follows", []] } },
+                        isFollowed: { $setIsSubset: [[_id], "$followedBy"] },
+                    },
+                },
+                {
+                    $sort: {
+                        createdAt: -1,
+                    },
+                }
+            ]).exec();
+            const playlistsList = getPlaylists(playlistsFound);
+            return res.status(200).send({
+                message: "Playlists found",
+                playlists: playlistsList
+            });
+        }
+        next();
     } catch (error) {
         res.status(500).send({
             error: error.message,
@@ -155,6 +160,6 @@ async function followPlaylist(req, res, next) {
 
 module.exports = {
     createPlaylist,
-    getUserPlaylists,
+    getAllPlaylists,
     followPlaylist,
 }
