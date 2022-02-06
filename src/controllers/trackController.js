@@ -27,12 +27,13 @@ async function uploadTrack(req, res, next) {
 
     const audio = uploads[0];
     const image = uploads[1];
+    console.log(req.user);
 
     // Define the response data schema
     const trackSchema = {
       _id: audio.asset_id,
       url: audio.secure_url,
-      userId: req.headers._id,
+      userId: req.user._id,
       thumbnail: image.secure_url,
       name: name,
       genre: genre,
@@ -49,7 +50,7 @@ async function uploadTrack(req, res, next) {
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
       const updatedTracks = await TrackRepo.find(
-        { userId: req.headers._id },
+        { userId: req.user._id },
         { _id: 1, name: 1, thumbnail: 1, genre: 1 }
       );
       const tracks = getTracksWithGenres(updatedTracks.data);
