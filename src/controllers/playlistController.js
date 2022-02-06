@@ -29,7 +29,7 @@ async function createPlaylist(req, res, next) {
         const playlistData = {
             user: _id,
             name: req.body.name,
-            description: req.body.description,
+            description: req.body.description, 
             thumbnail: thumbnail,
             publicAccessible: req.body.publicAccessible,
         };
@@ -113,13 +113,13 @@ async function getUserPlaylists(req, res, next) {
 async function followPlaylist(req, res, next) {
     try {
         const _id = req.user._id;
-        const user = await UserRepo.findOne({ _id: _id });
+        const user = await UserRepo.findOne({ _id });
         if (user.error) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
         }
         if (user.data) {
             const playlistId = req.params['id'];
-            const followedPlaylists = await db.Playlist.findOneAndUpdate({ _id: playlistId },
+            const followedPlaylists = await db.Playlist.findOneAndUpdate({ playlistId },
                 [
                     {
                         $set: {
@@ -132,12 +132,18 @@ async function followPlaylist(req, res, next) {
                             }
                         }
                     }
-                ]);
+                ],
+                { new: true }
+            ).exec();
+            const followed = followedPlaylists.followedBy.includes(_id) ? true : false;
             res.status(200).send({
-            message: "Playlist created successfully",
-            playlists: followedPlaylists
-        });
-    }
+                success: followed
+                ? 'You have successfully followed the playlist'
+                : 'You have successfully unfollowed the playlist',
+                data: { _id: followedPlaylists._id, followed: followed},
+            });
+            return;
+        }
     next();
     } catch (error) {
         res.status(500).send({

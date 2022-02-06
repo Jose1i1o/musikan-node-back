@@ -49,10 +49,7 @@ const playlistSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: 'tracks',
         }],
-        followedBy: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'users',
-        }],
+        followedBy: [{ type: String }]
     },
     {
         timestamps: true,
