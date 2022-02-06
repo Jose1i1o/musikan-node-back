@@ -4,7 +4,7 @@ const GenreSchema = new mongoose.Schema(
   {
     _id: {
       type: String,
-      unique: true,
+      trim: true,
     },
     name: {
       type: String,
@@ -17,7 +17,7 @@ const GenreSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+GenreSchema._id = JSON.stringify(GenreSchema._id);
 const GenreModel = new mongoose.model('genre', GenreSchema);
 
 module.exports = GenreModel;

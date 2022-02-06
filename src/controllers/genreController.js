@@ -19,4 +19,23 @@ async function getGenres(req, res, next) {
   }
 }
 
-module.exports = { getGenres };
+async function createGenre(req, res, next) {
+  try {
+    const newGenre = await GenreRepo.create({
+      _id: req.body._id,
+      name: req.body.genre,
+    });
+    if (newGenre.error)
+      return res.status(400).send({ error: 'Error creating genre' });
+
+    if (newGenre.data) {
+      return res.status(200).send({ success: 'Genres loaded' });
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getGenres, createGenre };
