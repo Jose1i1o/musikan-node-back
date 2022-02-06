@@ -32,7 +32,7 @@ async function uploadTrack(req, res, next) {
     const trackSchema = {
       _id: audio.asset_id,
       url: audio.secure_url,
-      userId: req.user._id,
+      userId: req.headers._id,
       thumbnail: image.secure_url,
       name: name,
       genre: genre,
@@ -49,7 +49,7 @@ async function uploadTrack(req, res, next) {
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
       const updatedTracks = await TrackRepo.find(
-        { userId: req.user._id },
+        { userId: req.headers._id },
         { _id: 1, name: 1, thumbnail: 1, genre: 1 }
       );
       const tracks = getTracksWithGenres(updatedTracks.data);
@@ -82,7 +82,7 @@ async function getTrack(req, res, next) {
   try {
     const foundTrack = await TrackRepo.findOne({
       _id: req.params.id,
-      userId: req.user._id,
+      userId: req.headers._id,
     });
 
     if (foundTrack.error) {
@@ -108,14 +108,14 @@ async function getTrack(req, res, next) {
 
 async function getMyTracks(req, res, next) {
   try {
-    const findingTracks = await TrackRepo.find({ userId: req.user._id });
+    const findingTracks = await TrackRepo.find({ userId: req.headers._id });
     const tracks = findingTracks.data.map((track) => {
       return {
         _id: track._id,
         name: track.name,
         thumbnail: track.thumbnail,
         genre: track.genre.name,
-        like: track.likedBy.includes(req.user._id) ? true : false,
+        like: track.likedBy.includes(req.headers._id) ? true : false,
       };
     });
 
@@ -178,7 +178,7 @@ async function editTrack(req, res, next) {
     }
 
     if (updatedTrack.data) {
-      const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+      const updatedTracks = await TrackRepo.find({ userId: req.headers._id });
       const tracks = getTracksWithGenres(updatedTracks.data);
 
       return res.status(200).send({
@@ -218,9 +218,9 @@ async function deleteTrack(req, res, next) {
 
     const deleteTrack = await TrackRepo.deleteOne({
       _id: id,
-      userId: req.user._id,
+      userId: req.headers._id,
     });
-    const updatedTracks = await TrackRepo.find({ userId: req.user._id });
+    const updatedTracks = await TrackRepo.find({ userId: req.headers._id });
     const tracks = getTracksWithGenres(updatedTracks.data);
 
     if (deleteTrack.error) {
@@ -241,7 +241,7 @@ async function deleteTrack(req, res, next) {
 async function getLikedTracks(req, res, next) {
   try {
     const tracks = await TrackRepo.find(
-      { likedBy: req.user._id },
+      { likedBy: req.headers._id },
       { _id: 1, name: 1, url: 1, thumbnail: 1, userId: 1 }
     );
     if (tracks.error) {
@@ -256,7 +256,7 @@ async function getLikedTracks(req, res, next) {
           name: track.name,
           thumbnail: track.thumbnail,
           genre: track.genre.name,
-          owner: track.userId === req.user._id ? true : false,
+          owner: track.userId === req.headers._id ? true : false,
         };
       });
 
@@ -273,7 +273,7 @@ async function getLikedTracks(req, res, next) {
 async function likeTrack(req, res, next) {
   try {
     const id = req.params.id;
-    const userId = req.user._id;
+    const userId = req.headers._id;
 
     const updateLike = await TrackRepo.findByIdAndUpdate(
       id,
