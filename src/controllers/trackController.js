@@ -94,10 +94,20 @@ async function getTrack(req, res, next) {
           _id: foundTrack.data._id,
           name: foundTrack.data.name,
           thumbnail: foundTrack.data.thumbnail,
-          genre: foundTrack.data.genre.name,
+          genre: {
+            _id: foundTrack.data.genre._id,
+            name: foundTrack.data.genre.name,
+          },
         },
       });
     }
+
+    // if (foundTrack.data) {
+    //   return res.status(200).send({
+    //     success: 'Track found',
+    //     data: foundTrack.data,
+    //   });
+    // }
 
     next();
   } catch (err) {
