@@ -9,7 +9,7 @@ const { getPublicId } = require('../utils/cloudinaryUtils');
 function getPlaylists(ListOfPlaylists) {
     const playlists = ListOfPlaylists.map((playlist) => {
         return {
-            id: playlist.user,
+            userId: playlist.user,
             name: playlist.name,
             description: playlist.description,
             thumbnail: playlist.thumbnail,
@@ -22,12 +22,12 @@ function getPlaylists(ListOfPlaylists) {
 
 async function createPlaylist(req, res, next) {
     try {
-        const _id = req.user._id;
+        const _id = req.headers._id;
         const user = await UserRepo.findOne({ _id: _id });
         // set default image if req.files.thumbnail is undefined
         const thumbnail = req.files.thumbnail ? req.files.thumbnail[0].path : DEFAULT_PLAYLIST_THUMBNAIL;
         const playlistData = {
-            user: _id,
+            userId: _id,
             name: req.body.name,
             description: req.body.description, 
             thumbnail: thumbnail,
@@ -55,7 +55,7 @@ async function createPlaylist(req, res, next) {
             }
         
         // return all the playlists from this user
-        const playlists = await db.Playlist.find({ user: _id }).exec();
+        const playlists = await db.Playlist.find({ userId: _id }).exec();
         console.log(playlists);
         const playlistsList = getPlaylists(playlists);
         return res.status(200).send({
@@ -70,44 +70,25 @@ async function createPlaylist(req, res, next) {
     }
 }
 
-async function getPlaylistsByUser(req, res, next) {
-    try{
-    // const id = req.params['id'];
-    // const user = await UserRepo.findOne({ _id: id });
-    
-    // if (user.error) {
-    //     return res.status(400).send({ error: 'The user has not been found, please try again' });
-    // }
-    // if (user.data) {
-    //     const userPlaylists = await db.Playlist
-
-    } catch (error) {
-        res.status(500).send({
-            error: error.message,
-        });
-        next(error);
-    }
-}
-
 async function followPlaylist(req, res, next) {
     try {
-        const _id = req.user._id;
-        console.log(_id);
-        const user = await UserRepo.findOne({ _id });
+        const _id = req.headers._id;
+        const user = await UserRepo.findOne({ userId: _id });
         if (user.error) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
         }
         if (user.data) {
             const playlistId = req.params['id'];
-            const followedPlaylists = await db.Playlist.findOneAndUpdate({ playlistId },
+            console.log(playlistId);
+            const followedPlaylists = await db.Playlist.findOneAndUpdate({ _id: playlistId },
                 [
                     {
                         $set: {
-                            followedBy: { 
+                            followedBy: {
                                 $cond: {
-                                    if: { $in: [_id, "$followedBy"] },
-                                    then: { $setDifference: ["$followedBy", [_id]] },
-                                    else: { $concatArrays: ["$followedBy", [_id]] }
+                                    if: { $in: [playlistId, "$followedBy"] },
+                                    then: { $setDifference: ["$followedBy", [playlistId]] },
+                                    else: { $concatArrays: ["$followedBy", [playlistId]] }
                                 }
                             }
                         }
@@ -115,7 +96,7 @@ async function followPlaylist(req, res, next) {
                 ],
                 { new: true }
             ).exec();
-            const followed = followedPlaylists.followedBy.includes(_id) ? true : false;
+            const followed = followedPlaylists.followedBy.includes(playlistId) ? true : false;
             res.status(200).send({
                 success: followed
                 ? 'You have successfully followed the playlist'
@@ -135,7 +116,7 @@ async function followPlaylist(req, res, next) {
 
 async function getAllPlaylists(req, res, next) {
     try {
-        const _id = req.user._id;
+        const _id = req.headers._id;
         const user = await UserRepo.findOne({ _id });
         if (user.error) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
@@ -144,36 +125,53 @@ async function getAllPlaylists(req, res, next) {
             const playlistsFound = await db.Playlist.aggregate([
                 {
                     $match: {
-                        $or: [{ followedBy: _id }, { _id: _id }]
+                        $or: [
+                            { userId: _id },
+                            { followedBy: _id },
+                        ],
                     },
                 },
-                // {
-                //     $project: {
-                //         user: 1,
-                //         name: 1,
-                //         description: 1,
-                //         thumbnail: 1,
-                //         publicAccessible: 1,
-                //         // follows: { $size: { $ifNull: ["$follows", []] } },
-                //         // isFollowed: { $setIsSubset: [[_id], "$followedBy"] },
-                //     },
-                // },
-                // {
-                //     $sort: {
-                //         createdAt: -1,
-                //     },
-                // }
+                {
+                    $project: {
+                        id: 1,
+                        userId: 1,
+                        name: 1,
+                        description: 1,
+                        thumbnail: 1,
+                        publicAccessible: 1,
+                        followedBy: 1,
+                        isFollowed: {
+                            $cond: {
+                                if: { $in: [_id, "$followedBy"] },
+                                then: true,
+                                else: false,
+                            },
+                        },
+                    },
+                },
+                {
+                    $sort: {
+                        createdAt: -1,
+                    },
+                }
             ]).exec();
+            
+            const mapPlaylists = playlistsFound.map(playlist => {
+                console.log(playlist.userId);
+                if(playlist.userId === _id){
+                    playlist.isOwned = true;
+                }else{
+                    playlist.isOwned = false;
+                }
+                return playlist;
+            });
+            // console.log(mapPlaylists);
+
             res.status(200).send({
                 message: "Playlists found",
-                playlists: playlistsFound
+                data: mapPlaylists,
             });
-            // const playlistsList = getPlaylists(playlistsFound);
-            // console.log(playlistsList);
-            // return res.status(200).send({
-            //     message: "Playlists found",
-            //     playlists: playlistsList
-            // });
+            return;
         }
         next();
     } catch (error) {
@@ -187,7 +185,6 @@ async function getAllPlaylists(req, res, next) {
 
 module.exports = {
     createPlaylist,
-    getPlaylistsByUser,
     followPlaylist,
     getAllPlaylists,
 }

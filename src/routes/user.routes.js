@@ -8,10 +8,9 @@ UserRouter.post('/sign-up', authMiddleware, userController.signUp);
 UserRouter.get('/sign-out', authMiddleware, userController.signOut);
 UserRouter.post(
   '/update-avatar',
-  authMiddleware,
   multerImage.single('profilePicture'),
   userController.updateAvatar
 );
-UserRouter.patch('/update', authMiddleware, userController.updateUser);
+UserRouter.patch('/update', userController.updateUser);
 
 module.exports = UserRouter;

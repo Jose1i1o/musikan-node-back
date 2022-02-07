@@ -6,7 +6,7 @@ const { trackController } = require('../controllers');
 
 TrackRouter.post(
   '/',
-  authMiddleware,
+
   multerAudio.fields([
     { name: 'track', maxCount: 1 },
     { name: 'thumbnail', maxCount: 1 },
@@ -15,26 +15,23 @@ TrackRouter.post(
 );
 TrackRouter.patch(
   '/:id',
-  authMiddleware,
   multerImage.single('thumbnail'),
   trackController.editTrack
 );
 TrackRouter.get(
   '/:id',
-  authMiddleware,
   multerImage.single('thumbnail'),
   trackController.getTrack
 );
 
 TrackRouter.get(
   '/:id/play',
-  authMiddleware,
   multerImage.single('thumbnail'),
   trackController.playTrack
 );
 
-TrackRouter.put('/:id/like', authMiddleware, trackController.likeTrack);
+TrackRouter.put('/:id/like', trackController.likeTrack);
 
-TrackRouter.delete('/:id', authMiddleware, trackController.deleteTrack);
+TrackRouter.delete('/:id', trackController.deleteTrack);
 
 module.exports = TrackRouter;

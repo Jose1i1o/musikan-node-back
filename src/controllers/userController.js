@@ -12,14 +12,14 @@ async function signUp(req, res, next) {
   try {
     const foundUser = await UserRepo.findOne({ email: email });
 
-    if (foundUser.error){
-    res.status(400).send({ error: 'User not found' });
-    return;
+    if (foundUser.error) {
+      return res.status(400).send({ error: 'User not found' });
     }
 
     if (foundUser.data) {
-      res.status(200).send({
-        user: {
+      return res.status(200).send({
+        data: {
+          _id: foundUser.data._id,
           email: foundUser.data.email,
           userName: foundUser.data.userName,
           profilePicture: foundUser.data.profilePicture,
@@ -27,7 +27,6 @@ async function signUp(req, res, next) {
         },
         success: 'User logged',
       });
-      return;
     }
 
     const newUser = await UserRepo.create({
@@ -37,16 +36,16 @@ async function signUp(req, res, next) {
       profilePicture: profilePicture,
     });
 
-    res.status(201).send({
+    return res.status(201).send({
       success: 'User registered',
-      user: {
+      data: {
+        _id: newUser.data._id,
         email: newUser.data.email,
         userName: newUser.data.userName,
         profilePicture: newUser.data.profilePicture,
         auth_provider: provider,
       },
     });
-    next();
   } catch (err) {
     next(err);
   }
@@ -54,35 +53,33 @@ async function signUp(req, res, next) {
 
 async function signOut(req, res, next) {
   try {
-    res.status(200).send({ success: 'User logged out' });
+    return res.status(200).send({ success: 'User logged out' });
   } catch (err) {
     next(err);
   }
 }
 
 async function updateAvatar(req, res, next) {
-  const { _id } = req.user;
+  const { _id } = req.headers;
 
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
     const profilePicture = result.secure_url;
 
-    const foundUser = await db.User.findOneAndUpdate(
+    const foundUser = await UserRepo.findOneAndUpdate(
       { _id: _id },
       { profilePicture: profilePicture },
       { new: true }
     );
 
-    if (foundUser.error){
-      res.status(400).send({ error: 'Error updating avatar' });
-      return;
+    if (foundUser.error) {
+      return res.status(400).send({ error: 'Error updating avatar' });
     }
     if (foundUser.data) {
-    res.status(200).send({
-      success: 'Avatar update succeed',
-      user: { profilePicture: foundUser.profilePicture },
-    });
-    return;
+      return res.status(200).send({
+        success: 'Avatar update succeed',
+        data: { profilePicture: foundUser.data.profilePicture },
+      });
     }
     next();
   } catch (err) {
@@ -91,7 +88,7 @@ async function updateAvatar(req, res, next) {
 }
 
 async function updateUser(req, res, next) {
-  const { _id } = req.user;
+  const { _id } = req.headers;
 
   const { userName, email } = req.body;
 
@@ -102,14 +99,14 @@ async function updateUser(req, res, next) {
       { new: true }
     );
 
-    if (updatedUser.error){
+    if (updatedUser.error) {
       res.status(400).send({ error: 'Error updating your user data' });
       return;
     }
     if (updatedUser.data) {
       res.status(200).send({
         success: 'Your user updated successfully',
-        user: {
+        data: {
           email: updatedUser.data.email,
           userName: updatedUser.data.userName,
           profilePicture: updatedUser.data.profilePicture,
