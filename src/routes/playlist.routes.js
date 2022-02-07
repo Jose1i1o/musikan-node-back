@@ -18,6 +18,10 @@ PlaylistRouter.get(
     authMiddleware,
     playlistController.getAllPlaylists);
 
+PlaylistRouter.get(
+    '/:id',
+    authMiddleware,
+    playlistController.getPlaylistsByUser);
 
 
 PlaylistRouter.put(
