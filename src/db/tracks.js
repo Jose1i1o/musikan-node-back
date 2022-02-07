@@ -15,7 +15,7 @@ async function getBaseTracks() {
       thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
       duration: 140,
       color: "#fbdc00",
-      likedBy: userId,
+      likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -26,7 +26,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -37,7 +37,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -48,7 +48,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -59,7 +59,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -70,7 +70,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -81,7 +81,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -92,7 +92,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -103,7 +103,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
     {
         _id: mongoose.Types.ObjectId(),
@@ -114,7 +114,7 @@ async function getBaseTracks() {
         thumbnail: "https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg",
         duration: 140,
         color: "#fbdc00",
-          likedBy: userId,
+          likedBy: [userId]
     },
   ];
 }
