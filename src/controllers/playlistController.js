@@ -122,14 +122,9 @@ async function getAllPlaylists(req, res, next) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
         }
         if (user.data) {
-            const playlistsFound = await db.Playlist.aggregate([
+            const playlistsFollowed = await db.Playlist.aggregate([
                 {
-                    $match: {
-                        $or: [
-                            { userId: _id },
-                            { followedBy: _id },
-                        ],
-                    },
+                    $match: { followedBy: _id },
                 },
                 {
                     $project: {
@@ -155,21 +150,43 @@ async function getAllPlaylists(req, res, next) {
                     },
                 }
             ]).exec();
-            
-            const mapPlaylists = playlistsFound.map(playlist => {
-                console.log(playlist.userId);
-                if(playlist.userId === _id){
-                    playlist.isOwned = true;
-                }else{
-                    playlist.isOwned = false;
+
+            const playlistsOwned = await db.Playlist.aggregate([
+                {
+                    $match: { userId: _id },
+                },
+                {
+                    $project: {
+                        id: 1,
+                        userId: 1,
+                        name: 1,
+                        description: 1,
+                        thumbnail: 1,
+                        publicAccessible: 1,
+                        followedBy: 1,
+                        isFollowed: {
+                            $cond: {
+                                if: { $in: [_id, "$followedBy"] },
+                                then: true,
+                                else: false,
+                            },
+                        },
+                    },
+                },
+                {
+                    $sort: {
+                        createdAt: -1,
+                    },
                 }
-                return playlist;
-            });
-            // console.log(mapPlaylists);
+            ]).exec();
+
 
             res.status(200).send({
                 message: "Playlists found",
-                data: mapPlaylists,
+                data: {
+                    playlistsFollowed,
+                    playlistsOwned,
+                },
             });
             return;
         }
