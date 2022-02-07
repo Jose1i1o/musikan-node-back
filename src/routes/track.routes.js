@@ -18,11 +18,7 @@ TrackRouter.patch(
   multerImage.single('thumbnail'),
   trackController.editTrack
 );
-TrackRouter.get(
-  '/:id',
-  multerImage.single('thumbnail'),
-  trackController.getTrack
-);
+TrackRouter.get('/:id', trackController.getTrack);
 
 TrackRouter.get(
   '/:id/play',
