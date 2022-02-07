@@ -60,7 +60,7 @@ async function createPlaylist(req, res, next) {
         const playlistsList = getPlaylists(playlists);
         return res.status(200).send({
             message: "Playlist created successfully",
-            playlists: playlistsList
+            data: playlistsList
         });
     } catch (error) {
       res.status(500).send({
