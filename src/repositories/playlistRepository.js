@@ -2,8 +2,8 @@ const db = require('../models');
 const normalizeDbQuery = require('../utils/normalizeDBQuery');
 
 class PlayListRepository {
-  create(options) {
-    return normalizeDbQuery(db.Playlist.create(options));
+  create(query) {
+    return normalizeDbQuery(db.Playlist.create(query));
   }
   findOne(query) {
     return normalizeDbQuery(db.Playlist.findOne(query, '-__v'));
