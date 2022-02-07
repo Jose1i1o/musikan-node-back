@@ -71,7 +71,6 @@ async function updateAvatar(req, res, next) {
       { profilePicture: profilePicture },
       { new: true }
     );
-    console.log(foundUser);
 
     if (foundUser.error) {
       return res.status(400).send({ error: 'Error updating avatar' });

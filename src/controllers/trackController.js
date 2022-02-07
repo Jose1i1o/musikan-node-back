@@ -27,13 +27,12 @@ async function uploadTrack(req, res, next) {
 
     const audio = uploads[0];
     const image = uploads[1];
-    console.log(req.user);
 
     // Define the response data schema
     const trackSchema = {
       _id: audio.asset_id,
       url: audio.secure_url,
-      userId: req.user._id,
+      userId: req.headers._id,
       thumbnail: image.secure_url,
       name: name,
       genre: genre,
@@ -41,8 +40,7 @@ async function uploadTrack(req, res, next) {
 
     // Create the new track
     const newTrack = await TrackRepo.create(trackSchema);
-    console.log(newTrack.error);
-    console.log(newTrack.data);
+
     if (newTrack.error) {
       return res.status(400).send({ error: 'Error uploading your track' });
     }
@@ -50,7 +48,7 @@ async function uploadTrack(req, res, next) {
     // Filter the new list of updated tracks uploaded by the logged user and add it to the server response
     if (newTrack.data) {
       const updatedTracks = await TrackRepo.find(
-        { userId: req.user._id },
+        { userId: req.headers._id },
         { _id: 1, name: 1, thumbnail: 1, genre: 1 }
       );
       const tracks = getTracksWithGenres(updatedTracks.data);
