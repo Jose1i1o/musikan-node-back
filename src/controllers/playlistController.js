@@ -201,21 +201,19 @@ async function getAllPlaylists(req, res, next) {
         },
       ]).exec();
 
-      if (playlistsFollowed.length > 0 || playlistsOwned.length > 0) {
+      if (followed.length > 0 || owned.length > 0) {
         res.status(200).send({
           success: 'Playlists found',
           data: {
-            playlistsFollowed,
-            playlistsOwned,
+            followed,
+            owned,
           },
         });
         return;
       } else {
-        return res
-          .status(400)
-          .send({
-            error: 'The playlists have not been found, please try again',
-          });
+        return res.status(400).send({
+          error: 'The playlists have not been found, please try again',
+        });
       }
     }
     next();
@@ -275,11 +273,9 @@ async function getPublicPlaylists(req, res, next) {
         });
         return;
       } else {
-        return res
-          .status(400)
-          .send({
-            error: 'The playlists have not been found, please try again',
-          });
+        return res.status(400).send({
+          error: 'The playlists have not been found, please try again',
+        });
       }
     }
     next();
