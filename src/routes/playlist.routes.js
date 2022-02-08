@@ -16,9 +16,9 @@ PlaylistRouter.get(
     '/',
     playlistController.getAllPlaylists);
 
-// PlaylistRouter.get(
-//     '/:id',
-//     playlistController.getPlaylistsByUser);
+PlaylistRouter.get(
+    '/public',
+    playlistController.getPublicPlaylists);
 
 
 PlaylistRouter.put(

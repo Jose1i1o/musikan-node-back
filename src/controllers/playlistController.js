@@ -59,7 +59,7 @@ async function createPlaylist(req, res, next) {
         const playlistsList = getPlaylists(playlists);
         return res.status(201).send({
             success: "Playlist created successfully",
-            data: playlistsList
+            data: playlistsListg
         });
         }
         else {
@@ -209,9 +209,69 @@ async function getAllPlaylists(req, res, next) {
     }
 }
 
+async function getPublicPlaylists(req, res, next) {
+    try {
+        const _id = req.headers._id;
+        console.log(_id);
+        const user = await UserRepo.findOne({ _id });
+        if (user.error) {
+            return res.status(400).send({ error: 'The user has not been found, please try again' });
+        }
+        if (user.data) {
+            const publicPlaylists = await db.Playlist.aggregate([
+                {
+                    $match: { publicAccessible: true },
+                },
+                {
+                    $project: {
+                        id: 1,
+                        userId: 1,
+                        name: 1,
+                        description: 1,
+                        thumbnail: 1,
+                        publicAccessible: 1,
+                        followedBy: 1,
+                        isFollowed: {
+                            $cond: {
+                                if: { $in: [_id, "$followedBy"] },
+                                then: true,
+                                else: false,
+                            },
+                        },
+                    },
+                },
+                {
+                    $sort: {
+                        createdAt: -1,
+                    },
+                }
+            ]).exec();
+
+            if( publicPlaylists.length > 0) {
+            res.status(200).send({
+                success: "Playlists found",
+                data: {
+                    publicPlaylists,
+                },
+            });
+            return;
+        }else {
+            return res.status(400).send({ error: 'The playlists have not been found, please try again' });
+        }
+        }
+        next();
+    } catch (error) {
+        res.status(500).send({
+            error: error.message,
+        });
+        next(error);
+    }
+}
+
 
 module.exports = {
     createPlaylist,
     followPlaylist,
     getAllPlaylists,
+    getPublicPlaylists
 }
