@@ -15,11 +15,10 @@ PlaylistRouter.post(
 
 PlaylistRouter.get('/', playlistController.getAllPlaylists);
 
-// PlaylistRouter.get(
-//     '/:id',
-//     playlistController.getPlaylistsByUser);
+PlaylistRouter.get('/public', playlistController.getPublicPlaylists);
 
 PlaylistRouter.patch('/:id', playlistController.addTrack);
+PlaylistRouter.get('/:id', playlistController.getPlaylistById);
 
 PlaylistRouter.put('/:id/follow', playlistController.followPlaylist);
 

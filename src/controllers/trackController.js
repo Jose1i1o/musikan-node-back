@@ -102,13 +102,6 @@ async function getTrack(req, res, next) {
       });
     }
 
-    // if (foundTrack.data) {
-    //   return res.status(200).send({
-    //     success: 'Track found',
-    //     data: foundTrack.data,
-    //   });
-    // }
-
     next();
   } catch (err) {
     next(err);

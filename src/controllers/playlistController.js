@@ -65,7 +65,7 @@ async function createPlaylist(req, res, next) {
     if (playlistData) {
       const playlists = await db.Playlist.find({ userId: _id }).exec();
       const playlistsList = getPlaylists(playlists);
-      return res.status(200).send({
+      return res.status(201).send({
         success: 'Playlist created successfully',
         data: playlistsList,
       });
@@ -101,9 +101,9 @@ async function followPlaylist(req, res, next) {
             $set: {
               followedBy: {
                 $cond: {
-                  if: { $in: [playlistId, '$followedBy'] },
-                  then: { $setDifference: ['$followedBy', [playlistId]] },
-                  else: { $concatArrays: ['$followedBy', [playlistId]] },
+                  if: { $in: [_id, '$followedBy'] },
+                  then: { $setDifference: ['$followedBy', [_id]] },
+                  else: { $concatArrays: ['$followedBy', [_id]] },
                 },
               },
             },
@@ -112,14 +112,14 @@ async function followPlaylist(req, res, next) {
         { new: true }
       ).exec();
       if (followedPlaylists) {
-        const followed = followedPlaylists.followedBy.includes(playlistId)
+        const followed = followedPlaylists.followedBy.includes(_id)
           ? true
           : false;
         res.status(200).send({
           success: followed
             ? 'You have successfully followed the playlist'
             : 'You have successfully unfollowed the playlist',
-          data: { _id: followedPlaylists._id, followed: followed },
+          data: { _id: _id, followed: followed },
         });
         return;
       } else {
@@ -267,10 +267,133 @@ async function addTrack(req, res, next) {
     next(err);
   }
 }
+async function getPublicPlaylists(req, res, next) {
+  try {
+    const _id = req.headers._id;
+    const user = await UserRepo.findOne({ _id });
+    if (user.error) {
+      return res
+        .status(400)
+        .send({ error: 'The user has not been found, please try again' });
+    }
+    if (user.data) {
+      const publicList = await db.Playlist.aggregate([
+        {
+          $match: { publicAccessible: true },
+        },
+        {
+          $project: {
+            id: 1,
+            userId: 1,
+            name: 1,
+            description: 1,
+            thumbnail: 1,
+            publicAccessible: 1,
+            followedBy: 1,
+            isFollowed: {
+              $cond: {
+                if: { $in: [_id, '$followedBy'] },
+                then: true,
+                else: false,
+              },
+            },
+          },
+        },
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+      ]).exec();
+
+      if (publicList.length > 0) {
+        res.status(200).send({
+          success: 'Playlists found',
+          data: {
+            publicList,
+          },
+        });
+        return;
+      } else {
+        return res.status(400).send({
+          error: 'The playlists have not been found, please try again',
+        });
+      }
+    }
+    next();
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+    });
+    next(error);
+  }
+}
+
+async function getPlaylistById(req, res, next) {
+  try {
+    const _id = req.headers._id;
+    const user = await UserRepo.findOne({ _id });
+    if (user.error) {
+      return res
+        .status(400)
+        .send({ error: 'The user has not been found, please try again' });
+    }
+    if (user.data) {
+      console.log('there is user data');
+      const playlistId = req.params['id'];
+
+      const playlistDetails = await db.Playlist.findOne(
+        { _id: playlistId },
+        {
+          id: 1,
+          userId: 1,
+          name: 1,
+          description: 1,
+          thumbnail: 1,
+          publicAccessible: 1,
+          followedBy: 1,
+          isFollowed: {
+            $cond: {
+              if: { $in: [_id, '$followedBy'] },
+              then: true,
+              else: false,
+            },
+          },
+          tracks: [],
+        }
+      ).exec();
+      console.log(playlistDetails);
+
+      if (playlistDetails) {
+        const owned = playlistDetails.userId === _id ? true : false;
+        res.status(200).send({
+          success: 'Playlist found',
+          data: {
+            owned,
+            playlistDetails,
+          },
+        });
+        return;
+      } else {
+        return res.status(400).send({
+          error: 'The playlist has not been found, please try again',
+        });
+      }
+    }
+    next();
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+    });
+    next(error);
+  }
+}
 
 module.exports = {
   createPlaylist,
   followPlaylist,
   getAllPlaylists,
   addTrack,
+  getPublicPlaylists,
+  getPlaylistById,
 };
