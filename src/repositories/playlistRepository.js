@@ -9,7 +9,7 @@ class PlayListRepository {
     return normalizeDbQuery(db.Playlist.findOne(query, '-__v'));
   }
   find(filter, options) {
-    return normalizeDbQuery(db.Playlist.find(filter, options).populate('playlist'));
+    return normalizeDbQuery(db.Playlist.find(filter, options));
   }
 }
 

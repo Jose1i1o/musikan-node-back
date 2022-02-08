@@ -57,7 +57,7 @@ async function createPlaylist(req, res, next) {
         if (playlistData) {
         const playlists = await db.Playlist.find({ userId: _id }).exec();
         const playlistsList = getPlaylists(playlists);
-        return res.status(200).send({
+        return res.status(201).send({
             success: "Playlist created successfully",
             data: playlistsList
         });
@@ -89,9 +89,9 @@ async function followPlaylist(req, res, next) {
                         $set: {
                             followedBy: {
                                 $cond: {
-                                    if: { $in: [playlistId, "$followedBy"] },
-                                    then: { $setDifference: ["$followedBy", [playlistId]] },
-                                    else: { $concatArrays: ["$followedBy", [playlistId]] }
+                                    if: { $in: [_id, "$followedBy"] },
+                                    then: { $setDifference: ["$followedBy", [_id]] },
+                                    else: { $concatArrays: ["$followedBy", [_id]] }
                                 }
                             }
                         }
@@ -100,12 +100,12 @@ async function followPlaylist(req, res, next) {
                 { new: true }
             ).exec();
             if (followedPlaylists) {
-            const followed = followedPlaylists.followedBy.includes(playlistId) ? true : false;
+            const followed = followedPlaylists.followedBy.includes(_id) ? true : false;
             res.status(200).send({
                 success: followed
                 ? 'You have successfully followed the playlist'
                 : 'You have successfully unfollowed the playlist',
-                data: { _id: followedPlaylists._id, followed: followed},
+                data: { _id: _id, followed: followed},
             });
             return;
             }else {
