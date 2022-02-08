@@ -286,6 +286,7 @@ async function getPublicPlaylists(req, res, next) {
     next(error);
   }
 }
+
 async function getPlaylistById(req, res, next) {
   try {
     const _id = req.headers._id;
@@ -298,18 +299,42 @@ async function getPlaylistById(req, res, next) {
     if (user.data) {
       console.log('there is user data');
       const playlistId = req.params['id'];
-      const playlistDetails = await db.Playlist.findOne(playlistId).exec();
+
+      const playlistDetails = await db.Playlist.findOne({ _id: playlistId },
+        {
+          id: 1,
+          userId: 1,
+          name: 1,
+          description: 1,
+          thumbnail: 1,
+          publicAccessible: 1,
+          followedBy: 1,
+          isFollowed: {
+            $cond: {
+              if: { $in: [_id, '$followedBy'] },
+              then: true,
+              else: false,
+            },
+          },
+          tracks: []
+        }).exec();
+      console.log(playlistDetails);
+
       if (playlistDetails) {
-        const playlistsList = getPlaylists(playlistDetails);
-        return res.status(202).send({
-          success: 'Playlist information fetched successfully',
-          data: playlistsList,
-        });
-      } else {
-        return res
-          .status(400)
-          .send({ error: 'The playlist has not been found, please try again' });
-      }
+      const owned = (playlistDetails.userId === _id) ? true : false;
+      res.status(200).send({
+        success: 'Playlist found',
+        data: {
+          owned,
+          playlistDetails,
+        },
+      });
+      return;
+    } else {
+      return res
+        .status(400)
+        .send({ error: 'The playlist has not been found, please try again' });
+    }
     }
     next();
   } catch (error) {
