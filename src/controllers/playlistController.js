@@ -345,6 +345,36 @@ async function getPlaylistById(req, res, next) {
   }
 }
 
+async function addTrackToPlaylist(req, res, next) {
+  try {
+    const playlistId = req.params['id'];
+    const trackId = req.body.trackId;
+    const _id = req.headers._id;
+
+    try {
+      const addTrack = await db.Playlist.updateOne(
+        { _id: playlistId,
+          tracks: { $ne: trackId } },
+        { $push: { tracks: trackId } }
+      ).exec();
+      if (addTrack.nModified > 0) {
+        res.status(200).send({
+          success: 'Track added to playlist',
+        });
+        return;
+      } else {
+        return res
+          .status(400)
+          .send({ error: 'The track has not been added to the playlist' });
+      }
+    } catch (error) {
+      return res
+        .status(500)
+        .send({ error: 'The track has not been added to the playlist' });
+    }
+
+
+
 module.exports = {
   createPlaylist,
   followPlaylist,
