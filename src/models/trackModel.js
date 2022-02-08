@@ -21,7 +21,7 @@ const TrackSchema = new mongoose.Schema(
     // albums: [albumId: String],
     likedBy: [{ type: String }],
   },
-  { timestamps: true, strictQuery: false }
+  { timestamps: true }
 );
 
 const TrackModel = new mongoose.model('tracks', TrackSchema);
