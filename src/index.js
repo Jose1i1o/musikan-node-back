@@ -6,9 +6,9 @@ const { seedTracks, seedPlaylist, seedGenres,  } = require('./db/seed');
 
 connect().then(async function onServerInit() {
   CONFIG.development.logger.info(`DB connected`);
-  await seedTracks();
-  await seedPlaylist();
-  await seedGenres();
+  // await seedTracks();
+  // await seedPlaylist();
+  // await seedGenres();
 
 });
 
