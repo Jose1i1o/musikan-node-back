@@ -59,7 +59,7 @@ async function createPlaylist(req, res, next) {
         const playlistsList = getPlaylists(playlists);
         return res.status(201).send({
             success: "Playlist created successfully",
-            data: playlistsListg
+            data: playlistsList,
         });
         }
         else {
@@ -212,13 +212,12 @@ async function getAllPlaylists(req, res, next) {
 async function getPublicPlaylists(req, res, next) {
     try {
         const _id = req.headers._id;
-        console.log(_id);
         const user = await UserRepo.findOne({ _id });
         if (user.error) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
         }
         if (user.data) {
-            const publicPlaylists = await db.Playlist.aggregate([
+            const publicList = await db.Playlist.aggregate([
                 {
                     $match: { publicAccessible: true },
                 },
@@ -247,11 +246,11 @@ async function getPublicPlaylists(req, res, next) {
                 }
             ]).exec();
 
-            if( publicPlaylists.length > 0) {
+            if( publicList.length > 0) {
             res.status(200).send({
                 success: "Playlists found",
                 data: {
-                    publicPlaylists,
+                    publicList,
                 },
             });
             return;
