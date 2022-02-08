@@ -16,12 +16,12 @@ const TrackSchema = new mongoose.Schema(
     //   released: { type: ZonedDateTime },
     duration: { type: Number },
     color: { type: String },
-    userId: { type: mongoose.Schema.Types.String, ref: 'users' },
+    userId: { type: String, ref: 'users' },
     genre: { type: mongoose.Schema.Types.String, ref: 'genre' },
     // albums: [albumId: String],
     likedBy: [{ type: String }],
   },
-  { timestamps: true }
+  { timestamps: true, strictQuery: false }
 );
 
 const TrackModel = new mongoose.model('tracks', TrackSchema);
