@@ -266,11 +266,41 @@ async function getPublicPlaylists(req, res, next) {
         next(error);
     }
 }
+async function getPlaylistById(req, res, next) {
+    try {
+        const _id = req.headers._id;
+        const user = await UserRepo.findOne({ _id });
+        if (user.error) {
+            return res.status(400).send({ error: 'The user has not been found, please try again' });
+        }
+        if (user.data) {
+            console.log('there is user data');
+            const playlistId = req.params['id'];
+            const playlistDetails = await db.Playlist.findOne( playlistId ).exec();
+            if( playlistDetails) {
+                const playlistsList = getPlaylists(playlistDetails);
+                return res.status(202).send({
+                    success: "Playlist information fetched successfully",
+                    data: playlistsList,
+                });
+            } else {
+                return res.status(400).send({ error: 'The playlist has not been found, please try again' });
+            }
+        }
+        next();
+    } catch (error) {
+        res.status(500).send({
+            error: error.message,
+        });
+        next(error);
+    }
+}
 
 
 module.exports = {
     createPlaylist,
     followPlaylist,
     getAllPlaylists,
-    getPublicPlaylists
+    getPublicPlaylists,
+    getPlaylistById
 }

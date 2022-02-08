@@ -21,6 +21,10 @@ PlaylistRouter.get(
     playlistController.getPublicPlaylists);
 
 
+PlaylistRouter.get(
+    '/:id',
+    playlistController.getPlaylistById);
+
 PlaylistRouter.put(
     '/:id/follow',
     playlistController.followPlaylist);
