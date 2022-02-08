@@ -53,15 +53,18 @@ async function createPlaylist(req, res, next) {
                 
                 await db.Playlist.create(playlistData);
             }
-        
-        // return all the playlists from this user
+        // if playlistData has data for the playlist then create it
+        if (playlistData) {
         const playlists = await db.Playlist.find({ userId: _id }).exec();
-        console.log(playlists);
         const playlistsList = getPlaylists(playlists);
         return res.status(200).send({
-            message: "Playlist created successfully",
+            success: "Playlist created successfully",
             data: playlistsList
         });
+        }
+        else {
+            return res.status(400).send({ error: 'The playlist has not been created, please try again' });
+        }
     } catch (error) {
       res.status(500).send({
         error: error.message,
@@ -96,6 +99,7 @@ async function followPlaylist(req, res, next) {
                 ],
                 { new: true }
             ).exec();
+            if (followedPlaylists) {
             const followed = followedPlaylists.followedBy.includes(playlistId) ? true : false;
             res.status(200).send({
                 success: followed
@@ -104,6 +108,9 @@ async function followPlaylist(req, res, next) {
                 data: { _id: followedPlaylists._id, followed: followed},
             });
             return;
+            }else {
+                return res.status(400).send({ error: 'The playlist has not been found, please try again' });
+            }
         }
     next();
     } catch (error) {
@@ -122,7 +129,7 @@ async function getAllPlaylists(req, res, next) {
             return res.status(400).send({ error: 'The user has not been found, please try again' });
         }
         if (user.data) {
-            const playlistsFollowed = await db.Playlist.aggregate([
+            const followed = await db.Playlist.aggregate([
                 {
                     $match: { followedBy: _id },
                 },
@@ -151,7 +158,7 @@ async function getAllPlaylists(req, res, next) {
                 }
             ]).exec();
 
-            const playlistsOwned = await db.Playlist.aggregate([
+            const owned = await db.Playlist.aggregate([
                 {
                     $match: { userId: _id },
                 },
@@ -180,15 +187,18 @@ async function getAllPlaylists(req, res, next) {
                 }
             ]).exec();
 
-
+            if( followed.length > 0 || owned.length > 0) {
             res.status(200).send({
-                message: "Playlists found",
+                success: "Playlists found",
                 data: {
-                    playlistsFollowed,
-                    playlistsOwned,
+                    followed,
+                    owned,
                 },
             });
             return;
+        }else {
+            return res.status(400).send({ error: 'The playlists have not been found, please try again' });
+        }
         }
         next();
     } catch (error) {
