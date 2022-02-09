@@ -6,10 +6,7 @@ const { playlistController } = require('../controllers');
 
 PlaylistRouter.post(
     '/',
-    multerAudio.fields([
-        { name: 'track', maxCount: 1 },
-        { name: 'thumbnail', maxCount: 1 },
-      ]),
+    multerImage.single('thumbnail'),
     playlistController.createPlaylist);
 
 PlaylistRouter.get(
@@ -28,5 +25,10 @@ PlaylistRouter.get(
 PlaylistRouter.put(
     '/:id/follow',
     playlistController.followPlaylist);
+
+PlaylistRouter.patch(
+    '/:id',
+    multerImage.single('thumbnail'),
+    playlistController.updatePlaylist);
 
 module.exports = PlaylistRouter;
