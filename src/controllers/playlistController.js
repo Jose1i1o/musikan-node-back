@@ -434,5 +434,4 @@ module.exports = {
   addTrack,
   getPublicPlaylists,
   getPlaylistById,
-  updatePlaylist,
 };
