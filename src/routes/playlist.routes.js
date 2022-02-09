@@ -19,7 +19,7 @@ PlaylistRouter.get('/:id', playlistController.getPlaylistById);
 PlaylistRouter.put('/:id/follow', playlistController.followPlaylist);
 
 PlaylistRouter.patch(
-    '/:id',
+    '/update/:id',
     multerImage.single('thumbnail'),
     playlistController.updatePlaylist);
 
