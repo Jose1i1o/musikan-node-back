@@ -336,9 +336,14 @@ async function playTrack(req, res, next) {
 
 async function getTracksForPlaylist(req, res, next) {
   try {
+    const userId = req.headers._id;
+    console.log(userId);
     const filter = req.body.tracks;
     const tracks = await TrackRepo.find(
-      { _id: { $nin: filter } },
+      {
+        _id: { $nin: filter },
+        $or: [{ userId: userId }, { $in: [userId, '$likedBy'] }],
+      },
       {
         _id: 1,
         name: 1,
