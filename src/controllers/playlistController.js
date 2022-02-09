@@ -29,17 +29,19 @@ async function createPlaylist(req, res, next) {
     });
     playlistData.thumbnail = thumbnailPicture.secure_url;
 
-
     await db.Playlist.create(playlistData);
-    
+
     if (playlistData) {
-      const playlists = await db.Playlist.find({ userId: _id }, {
-        name: 1,
-        description: 1,
-        publicAccessible: 1,
-        thumbnail: 1,
-        followedBy: 1,
-      }).exec();
+      const playlists = await db.Playlist.find(
+        { userId: _id },
+        {
+          name: 1,
+          description: 1,
+          publicAccessible: 1,
+          thumbnail: 1,
+          followedBy: 1,
+        }
+      ).exec();
 
       return res.status(201).send({
         success: 'Playlist created successfully',
@@ -49,7 +51,7 @@ async function createPlaylist(req, res, next) {
       return res
         .status(400)
         .send({ error: 'The playlist has not been created, please try again' });
-      }
+    }
   } catch (error) {
     res.status(500).send({
       error: error.message,
@@ -218,27 +220,17 @@ async function addTrack(req, res, next) {
         new: true,
       }
     );
-
-    res.status(200).send({
-      success: 'Track added',
-      data: addedTrack.data,
-    });
-
-    // const addedTrack = await PlaylistRepo.findByIdAndUpdate(
-    //   playListId,
-    //   {
-    //     $push: { tracks: trackId },
-    //   },
-    //   {
-    //     new: true,
-    //   }
-    // );
-
-    // res.status(200).send({
-    //   success: 'Track added',
-    //   data: addedTrack.data,
-    // });
-
+    if (addedTrack.error) {
+      return res.status(400).send({
+        error: 'Your tracks could not be added to the playlist ',
+      });
+    }
+    if (addedTrack.data) {
+      return res.status(200).send({
+        success: 'Track added',
+        data: addedTrack.data,
+      });
+    }
     next();
   } catch (err) {
     next(err);
@@ -335,26 +327,27 @@ async function getPlaylistById(req, res, next) {
               else: false,
             },
           },
-          tracks: []
-        }).exec();
-
-        if (playlistDetails) {
-          const owned = (playlistDetails.userId === _id) ? true : false;
-          // playlistDetails.owned = owned;
-          res.status(200).send({
-            success: 'Playlist found',
-            data: {
-              owned,
-              playlistDetails
-            }
-          });
-          return;
-        } else {
-          return res
-            .status(400)
-            .send({ error: 'The playlist has not been found, please try again' });
-          }
+          tracks: [],
         }
+      ).exec();
+
+      if (playlistDetails) {
+        const owned = playlistDetails.userId === _id ? true : false;
+        // playlistDetails.owned = owned;
+        res.status(200).send({
+          success: 'Playlist found',
+          data: {
+            owned,
+            playlistDetails,
+          },
+        });
+        return;
+      } else {
+        return res
+          .status(400)
+          .send({ error: 'The playlist has not been found, please try again' });
+      }
+    }
     next();
   } catch (error) {
     res.status(500).send({
@@ -370,60 +363,65 @@ async function updatePlaylist(req, res, next) {
 
     const playlistId = req.params['id'];
 
-    const playlist = await db.Playlist.findOne({ _id: playlistId },
+    const playlist = await db.Playlist.findOne(
+      { _id: playlistId },
       {
         userId: 1,
         name: 1,
         description: 1,
         thumbnail: 1,
         publicAccessible: 1,
-      });
+      }
+    );
 
-      let thumbnail = playlist.thumbnail;
-      
-      if (playlist) {
-        if(req.file) {
-            const publicId = await getPublicId(thumbnail);
-            if (publicId) {
-              await cloudinary.uploader.destroy(publicId, {
-                resource_type: 'image',
-              });
-              
-              const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
-                resource_type: 'image',
-                folder: 'playlists',
-              });
-              thumbnail = uploadNewImage.secure_url;
+    let thumbnail = playlist.thumbnail;
+
+    if (playlist) {
+      if (req.file) {
+        const publicId = await getPublicId(thumbnail);
+        if (publicId) {
+          await cloudinary.uploader.destroy(publicId, {
+            resource_type: 'image',
+          });
+
+          const uploadNewImage = await cloudinary.uploader.upload(
+            req.file.path,
+            {
+              resource_type: 'image',
+              folder: 'playlists',
             }
-          }
+          );
+          thumbnail = uploadNewImage.secure_url;
+        }
+      }
 
-          const updatePlaylist = await db.Playlist.aggregate([
-            {
-              $match: { _id: mongoose.Types.ObjectId(playlistId) },
-            },
-            {
-              $project: {
-                name: 1,
-                description: 1,
-                thumbnail: 1,
-                publicAccessible: 1,
-              }
-            },
-          ]).exec();
+      const updatePlaylist = await db.Playlist.aggregate([
+        {
+          $match: { _id: mongoose.Types.ObjectId(playlistId) },
+        },
+        {
+          $project: {
+            name: 1,
+            description: 1,
+            thumbnail: 1,
+            publicAccessible: 1,
+          },
+        },
+      ]).exec();
 
-          if (updatePlaylist) {
-            res.status(200).send({
-              success: 'Playlist updated',
-              data: updatePlaylist,
-            });
-            return;
-          }
-        } else {
-          return res
-            .status(400)
-            .send({ error: 'You are not the owner of this playlist' });
-          }
-      next();
+      if (updatePlaylist) {
+        res.status(200).send({
+          success: 'Playlist updated',
+          data: updatePlaylist,
+        });
+        return;
+      }
+    } else {
+      return res
+        .status(400)
+        .send({ error: 'You are not the owner of this playlist' });
+    }
+    next();
   } catch (error) {
     res.status(500).send({
       error: error.message,
@@ -439,5 +437,5 @@ module.exports = {
   addTrack,
   getPublicPlaylists,
   getPlaylistById,
-  updatePlaylist
+  updatePlaylist,
 };
