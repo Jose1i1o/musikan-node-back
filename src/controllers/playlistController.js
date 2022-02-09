@@ -386,69 +386,6 @@ async function getPlaylistById(req, res, next) {
   }
 }
 
-async function updatePlaylist(req, res, next) {
-  try {
-    const playlistId = req.params['id'];
-
-    const playlist = await db.Playlist.findOne({ _id: playlistId },
-      {
-        userId: 1,
-        name: 1,
-        description: 1,
-        thumbnail: 1,
-        publicAccessible: 1,
-      });
-
-      let thumbnail = playlist.thumbnail;
-      
-      if (playlist) {
-        if(req.file) {
-            const publicId = await getPublicId(thumbnail);
-            if (publicId) {
-              await cloudinary.uploader.destroy(publicId, {
-                resource_type: 'image',
-              });
-
-              const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
-                resource_type: 'image',
-                folder: 'playlists',
-              });
-              thumbnail = uploadNewImage.secure_url;
-            }
-            return;
-          }
-
-          const updatePlaylist = await db.Playlist.aggregate([
-            {
-              $match: { _id: mongoose.Types.ObjectId(playlistId) },
-            },
-            {
-              $project: {
-                name: 1,
-                description: 1,
-                thumbnail: 1,
-                publicAccessible: 1,
-              }
-            },
-          ]).exec();
-            res.status(200).send({
-              success: 'Playlist updated',
-              data: updatePlaylist,
-            });
-            return;
-      }else{
-        return res.status(400).send({
-          error: 'The playlist has not been found, please try again',
-        });
-      }
-  } catch (error) {
-    res.status(500).send({
-      data: error.message,
-    });
-    next(error);
-  }
-}
-
 module.exports = {
   createPlaylist,
   followPlaylist,
@@ -456,5 +393,5 @@ module.exports = {
   addTrack,
   getPublicPlaylists,
   getPlaylistById,
-  updatePlaylist,
+
 };
