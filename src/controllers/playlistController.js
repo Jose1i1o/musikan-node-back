@@ -357,9 +357,11 @@ async function getPlaylistById(req, res, next) {
               else: false,
             },
           },
-          tracks: [],
+          tracks: 1,
+
+          // _id, name, thumbnail
         }
-      ).exec();
+      ).populate('tracks');
 
       if (playlistDetails) {
         const owned = playlistDetails.userId === _id ? true : false;
