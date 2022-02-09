@@ -111,7 +111,6 @@ async function getTrack(req, res, next) {
 async function getMyTracks(req, res, next) {
   try {
     const findingTracks = await TrackRepo.find({ userId: req.headers._id });
-    console.log(findingTracks)
     const tracks = findingTracks.data.map((track) => {
       return {
         _id: track._id,
@@ -150,7 +149,6 @@ async function editTrack(req, res, next) {
 
     if (req.file) {
       const publicId = await getPublicId(thumbnail);
-      console.log(publicId);
 
       if (publicId) {
         await cloudinary.uploader.destroy(publicId, {
@@ -332,7 +330,6 @@ async function playTrack(req, res, next) {
 async function getTracksForPlaylist(req, res, next) {
   try {
     const userId = req.headers._id;
-    console.log(userId);
     const filter = req.body.tracks;
     const tracks = await TrackRepo.find(
       {

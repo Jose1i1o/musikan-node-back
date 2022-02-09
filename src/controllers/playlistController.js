@@ -326,8 +326,6 @@ async function getPlaylistById(req, res, next) {
       }
     ).populate('tracks', ['id', 'name', 'thumbnail']);
 
-    console.log(playlistDetails);
-
     if (playlistDetails) {
       const owned = playlistDetails.userId === _id ? true : false;
       // playlistDetails.owned = owned;
@@ -364,13 +362,8 @@ async function updatePlaylist(req, res, next) {
     publicAccessible: publicAccessible
   }
   try {
-<<<<<<< HEAD
-=======
-    const _id = req.headers._id;
-
     const playlistId = req.params['id'];
 
->>>>>>> dev
     const playlist = await db.Playlist.findOne(
       { _id: playlistId },
       {
@@ -378,7 +371,6 @@ async function updatePlaylist(req, res, next) {
         description: 1,
         thumbnail: 1,
         publicAccessible: 1,
-<<<<<<< HEAD
       })
       let thumbnail = playlist.thumbnail;
       
@@ -394,34 +386,10 @@ async function updatePlaylist(req, res, next) {
                 folder: 'playlists',
               });
               playlistSchema.thumbnail = uploadNewImage.secure_url;
-=======
-      }
-    );
-
-    let thumbnail = playlist.thumbnail;
-
-    if (playlist) {
-      if (req.file) {
-        const publicId = await getPublicId(thumbnail);
-        if (publicId) {
-          await cloudinary.uploader.destroy(publicId, {
-            resource_type: 'image',
-          });
-
-          const uploadNewImage = await cloudinary.uploader.upload(
-            req.file.path,
-            {
-              resource_type: 'image',
-              folder: 'playlists',
->>>>>>> dev
             }
-          );
-          thumbnail = uploadNewImage.secure_url;
-        }
-      }
+          }
 
-<<<<<<< HEAD
-          await db.Playlist.findOneAndUpdate({ playlistId , playlistSchema, }, { new: true });
+          const updated = await db.Playlist.findOneAndUpdate({ _id: playlistId }, playlistSchema, { new: true });
 
             res.status(200).send({
               success: 'Playlist updated',
@@ -429,35 +397,6 @@ async function updatePlaylist(req, res, next) {
             });
             return;
             
-=======
-      const updatePlaylist = await db.Playlist.aggregate([
-        {
-          $match: { _id: mongoose.Types.ObjectId(playlistId) },
-        },
-        {
-          $project: {
-            name: 1,
-            description: 1,
-            thumbnail: 1,
-            publicAccessible: 1,
-          },
-        },
-      ]).exec();
-
-      if (updatePlaylist) {
-        res.status(200).send({
-          success: 'Playlist updated',
-          data: updatePlaylist,
-        });
-        return;
-      }
-    } else {
-      return res
-        .status(400)
-        .send({ error: 'You are not the owner of this playlist' });
-    }
-    next();
->>>>>>> dev
   } catch (error) {
     res.status(500).send({
       data: error.message,
@@ -505,9 +444,6 @@ module.exports = {
   addTrack,
   getPublicPlaylists,
   getPlaylistById,
-<<<<<<< HEAD
   updatePlaylist,
   deletePlaylist,
-=======
->>>>>>> dev
 };
