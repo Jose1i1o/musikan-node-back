@@ -230,36 +230,38 @@ async function getAllPlaylists(req, res, next) {
 
 async function addTrack(req, res, next) {
   const playListId = mongoose.Types.ObjectId(req.params.id);
-  const trackId = req.body.trackId;
+  const tracks = req.body.tracks;
 
   try {
     const addedTrack = await PlaylistRepo.findByIdAndUpdate(
       playListId,
       {
-        $push: { tracks: trackId },
+        $push: { tracks: tracks },
       },
       {
         new: true,
       }
     );
-    const populatedTracks = addedTrack.data.tracks.map((track) => {
-      return {
-        _id: track._id,
-        name: track.name,
-        thumbnail: track.thumbnail,
-      };
-    });
 
     res.status(200).send({
       success: 'Track added',
-      data: {
-        _id: addedTrack.data._id,
-        name: addedTrack.data.name,
-        description: addedTrack.data.description,
-        thumbnail: addedTrack.data.thumbnail,
-        tracks: populatedTracks,
-      },
+      data: addedTrack.data,
     });
+
+    // const addedTrack = await PlaylistRepo.findByIdAndUpdate(
+    //   playListId,
+    //   {
+    //     $push: { tracks: trackId },
+    //   },
+    //   {
+    //     new: true,
+    //   }
+    // );
+
+    // res.status(200).send({
+    //   success: 'Track added',
+    //   data: addedTrack.data,
+    // });
 
     next();
   } catch (err) {

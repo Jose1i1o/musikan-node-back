@@ -13,7 +13,11 @@ class PlayListRepository {
   }
   findByIdAndUpdate(filter, query, options) {
     return normalizeDbQuery(
-      db.Playlist.findByIdAndUpdate(filter, query, options).populate('tracks')
+      db.Playlist.findByIdAndUpdate(filter, query, options).populate('tracks', [
+        'id',
+        'name',
+        'thumbnail',
+      ])
     );
   }
 }
