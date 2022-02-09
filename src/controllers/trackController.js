@@ -111,30 +111,24 @@ async function getTrack(req, res, next) {
 async function getMyTracks(req, res, next) {
   try {
     const findingTracks = await TrackRepo.find({ userId: req.headers._id });
+    console.log(findingTracks)
     const tracks = findingTracks.data.map((track) => {
       return {
         _id: track._id,
         name: track.name,
         thumbnail: track.thumbnail,
-        genre: track.genre.name,
-        like: track.likedBy.includes(req.headers._id) ? true : false,
+        url: track.url,
+        likedBy: track.likedBy,
+        userId: track.userId,
       };
     });
 
-    if (findingTracks.error) {
-      return res.status(400).send({ error: 'Error uploading your track' });
-    }
-
-    if (findingTracks.data) {
-      return res.status(200).send({
+      res.status(200).send({
         success: 'Your tracks have been loaded',
         data: tracks,
       });
-    }
-
-    next();
   } catch (error) {
-    next(err);
+    error.message = error.message || 'Error loading your tracks';
   }
 }
 
