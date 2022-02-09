@@ -22,4 +22,6 @@ PlaylistRouter.get('/:id', playlistController.getPlaylistById);
 
 PlaylistRouter.put('/:id/follow', playlistController.followPlaylist);
 
+PlaylistRouter.patch('/update/:id', playlistController.updatePlaylist);
+
 module.exports = PlaylistRouter;
