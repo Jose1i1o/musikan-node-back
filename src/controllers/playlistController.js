@@ -4,76 +4,52 @@ const {
   PlayListRepository,
   PlaylistRepo,
 } = require('../repositories');
-const { DEFAULT_PLAYLIST_THUMBNAIL } = require('../utils/defaults');
 
-const { cloudinary } = require('../services/cloudinary');
-const { getPublicId } = require('../utils/cloudinaryUtils');
 const mongoose = require('mongoose');
 
-function getPlaylists(ListOfPlaylists) {
-  const playlists = ListOfPlaylists.map((playlist) => {
-    return {
-      userId: playlist.user,
-      name: playlist.name,
-      description: playlist.description,
-      thumbnail: playlist.thumbnail,
-      publicAccessible: playlist.publicAccessible,
-      followedBy: playlist.follows,
-    };
-  });
-  return playlists;
-}
+const { getPublicId } = require('../utils/cloudinaryUtils');
+const { cloudinary } = require('../services/cloudinary');
 
 async function createPlaylist(req, res, next) {
   try {
     const _id = req.headers._id;
-    const user = await UserRepo.findOne({ _id: _id });
-    // set default image if req.files.thumbnail is undefined
-    const thumbnail = req.files.thumbnail
-      ? req.files.thumbnail[0].path
-      : DEFAULT_PLAYLIST_THUMBNAIL;
+
+    const thumbnail = req.file.path;
+
     const playlistData = {
       userId: _id,
       name: req.body.name,
       description: req.body.description,
-      thumbnail: thumbnail,
       publicAccessible: req.body.publicAccessible,
     };
 
-    if (user.error) {
-      return res
-        .status(400)
-        .send({ error: 'The user has not been found, please try again' });
-    }
+    const thumbnailPicture = await cloudinary.uploader.upload(thumbnail, {
+      resource_type: 'image',
+      folder: 'playlists',
+    });
+    playlistData.thumbnail = thumbnailPicture.secure_url;
 
-    if (user.data) {
-      const { name, description, publicAccessible, user, thumbnail } =
-        playlistData;
-      const thumbnailPicture = await cloudinary.uploader.upload(thumbnail, {
-        resource_type: 'image',
-        folder: 'playlists',
-      });
-      playlistData.user = user;
-      playlistData.name = name;
-      playlistData.description = description;
-      playlistData.thumbnail = thumbnailPicture.secure_url;
-      playlistData.publicAccessible = publicAccessible;
 
-      await db.Playlist.create(playlistData);
-    }
-    // if playlistData has data for the playlist then create it
+    await db.Playlist.create(playlistData);
+    
     if (playlistData) {
-      const playlists = await db.Playlist.find({ userId: _id }).exec();
-      const playlistsList = getPlaylists(playlists);
+      const playlists = await db.Playlist.find({ userId: _id }, {
+        name: 1,
+        description: 1,
+        publicAccessible: 1,
+        thumbnail: 1,
+        followedBy: 1,
+      }).exec();
+
       return res.status(201).send({
         success: 'Playlist created successfully',
-        data: playlistsList,
+        data: playlists,
       });
     } else {
       return res
         .status(400)
         .send({ error: 'The playlist has not been created, please try again' });
-    }
+      }
   } catch (error) {
     res.status(500).send({
       error: error.message,
@@ -359,27 +335,95 @@ async function getPlaylistById(req, res, next) {
               else: false,
             },
           },
-          tracks: [],
-        }
-      ).exec();
+          tracks: []
+        }).exec();
 
-      if (playlistDetails) {
-        const owned = playlistDetails.userId === _id ? true : false;
-        res.status(200).send({
-          success: 'Playlist found',
-          data: {
-            owned,
-            playlistDetails,
-          },
-        });
-        return;
-      } else {
-        return res.status(400).send({
-          error: 'The playlist has not been found, please try again',
-        });
-      }
-    }
+        if (playlistDetails) {
+          const owned = (playlistDetails.userId === _id) ? true : false;
+          // playlistDetails.owned = owned;
+          res.status(200).send({
+            success: 'Playlist found',
+            data: {
+              owned,
+              playlistDetails
+            }
+          });
+          return;
+        } else {
+          return res
+            .status(400)
+            .send({ error: 'The playlist has not been found, please try again' });
+          }
+        }
     next();
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+    });
+    next(error);
+  }
+}
+
+async function updatePlaylist(req, res, next) {
+  try {
+    const _id = req.headers._id;
+
+    const playlistId = req.params['id'];
+
+    const playlist = await db.Playlist.findOne({ _id: playlistId },
+      {
+        userId: 1,
+        name: 1,
+        description: 1,
+        thumbnail: 1,
+        publicAccessible: 1,
+      });
+
+      let thumbnail = playlist.thumbnail;
+      
+      if (playlist) {
+        if(req.file) {
+            const publicId = await getPublicId(thumbnail);
+            if (publicId) {
+              await cloudinary.uploader.destroy(publicId, {
+                resource_type: 'image',
+              });
+              
+              const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
+                resource_type: 'image',
+                folder: 'playlists',
+              });
+              thumbnail = uploadNewImage.secure_url;
+            }
+          }
+
+          const updatePlaylist = await db.Playlist.aggregate([
+            {
+              $match: { _id: mongoose.Types.ObjectId(playlistId) },
+            },
+            {
+              $project: {
+                name: 1,
+                description: 1,
+                thumbnail: 1,
+                publicAccessible: 1,
+              }
+            },
+          ]).exec();
+
+          if (updatePlaylist) {
+            res.status(200).send({
+              success: 'Playlist updated',
+              data: updatePlaylist,
+            });
+            return;
+          }
+        } else {
+          return res
+            .status(400)
+            .send({ error: 'You are not the owner of this playlist' });
+          }
+      next();
   } catch (error) {
     res.status(500).send({
       error: error.message,
@@ -395,4 +439,5 @@ module.exports = {
   addTrack,
   getPublicPlaylists,
   getPlaylistById,
+  updatePlaylist
 };

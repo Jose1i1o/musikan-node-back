@@ -156,6 +156,7 @@ async function editTrack(req, res, next) {
 
     if (req.file) {
       const publicId = await getPublicId(thumbnail);
+      console.log(publicId);
 
       if (publicId) {
         await cloudinary.uploader.destroy(publicId, {

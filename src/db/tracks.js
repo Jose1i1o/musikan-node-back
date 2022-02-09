@@ -2,13 +2,13 @@ const db = require('../models');
 const mongoose = require('mongoose');
 
 async function getBaseTracks() {
-  let { _id: userId } = await db.User.findOne({}, { _id: 1 }).lean();
+  let userId = await db.User.findOne({}, { _id: 1 }).lean();
   let genre = await db.Genre.findOne({}, { _id: 1 }).lean();
   return [
     {
-      _id: '1',
-      name: 'Song 1',
-      artist: 'Artist 1',
+      _id: "1",
+      name: "Song 1",
+      artist: "Artist 1",
       rating: 5,
       url: 'https://res.cloudinary.com/dz5nspe7f/video/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.mp3',
       thumbnail:
