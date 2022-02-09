@@ -413,6 +413,38 @@ async function updatePlaylist(req, res, next) {
   }
 }
 
+async function deletePlaylist(req, res, next) {
+  const playlistId = req.params['id'];
+
+  try {
+    const playlist = await db.Playlist.findOne(
+      { _id: playlistId },
+      {
+        thumbnail: 1,
+      })
+      let thumbnail = playlist.thumbnail;
+      console.log(thumbnail);
+      const publicId = await getPublicId(thumbnail);
+      if (publicId) {
+        await cloudinary.uploader.destroy(publicId, {
+          resource_type: 'image',
+          folder: 'playlists',
+        });
+      }
+      const deletePlaylist = await db.Playlist.findOneAndDelete({ _id: playlistId });
+      res.status(200).send({
+        success: 'Playlist deleted',
+        data: deletePlaylist.name,
+      });
+      return;
+  } catch (error) {
+    res.status(500).send({
+      data: error.message,
+    });
+    next(error);
+  }
+}
+
 module.exports = {
   createPlaylist,
   followPlaylist,
@@ -421,4 +453,5 @@ module.exports = {
   getPublicPlaylists,
   getPlaylistById,
   updatePlaylist,
+  deletePlaylist,
 };
