@@ -334,6 +334,39 @@ async function playTrack(req, res, next) {
   next();
 }
 
+async function getTracksForPlaylist(req, res, next) {
+  try {
+    // console.log(req.body.tracks);
+    const filter = req.body.tracks;
+    const tracks = await db.Track.find().select({ _id: 1 });
+
+    const test = tracks.filter(({ _id }) => {
+      return !filter.includes(_id);
+    });
+    // console.log(test);
+    const flattedIds = test.map((el) => {
+      return el._id;
+    });
+
+    const availableTracks = await db.Track.find({
+      _id: { $in: flattedIds },
+    }).select({ _id: 1, name: 1, thumbnail: 1 });
+
+    res.status(200).send({
+      success: 'Tracks loaded',
+      data: availableTracks,
+      // data: {
+      //   _id: availableTracks._id,
+      //   name: availableTracks.name,
+      //   thumbnail: availableTracks.thumbnail,
+      // },
+    });
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   uploadTrack,
   editTrack,
@@ -343,4 +376,5 @@ module.exports = {
   deleteTrack,
   getTrack,
   playTrack,
+  getTracksForPlaylist,
 };

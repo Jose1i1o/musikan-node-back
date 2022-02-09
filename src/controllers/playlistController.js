@@ -93,7 +93,6 @@ async function followPlaylist(req, res, next) {
     }
     if (user.data) {
       const playlistId = req.params['id'];
-      console.log(playlistId);
       const followedPlaylists = await db.Playlist.findOneAndUpdate(
         { _id: playlistId },
         [
@@ -339,7 +338,6 @@ async function getPlaylistById(req, res, next) {
         .send({ error: 'The user has not been found, please try again' });
     }
     if (user.data) {
-      console.log('there is user data');
       const playlistId = req.params['id'];
 
       const playlistDetails = await db.Playlist.findOne(
@@ -362,7 +360,6 @@ async function getPlaylistById(req, res, next) {
           tracks: [],
         }
       ).exec();
-      console.log(playlistDetails);
 
       if (playlistDetails) {
         const owned = playlistDetails.userId === _id ? true : false;
