@@ -364,8 +364,6 @@ async function getPlaylistById(req, res, next) {
 
 async function updatePlaylist(req, res, next) {
   try {
-    const _id = req.headers._id;
-
     const playlistId = req.params['id'];
 
     const playlist = await db.Playlist.findOne({ _id: playlistId },
@@ -386,13 +384,14 @@ async function updatePlaylist(req, res, next) {
               await cloudinary.uploader.destroy(publicId, {
                 resource_type: 'image',
               });
-              
+
               const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
                 resource_type: 'image',
                 folder: 'playlists',
               });
               thumbnail = uploadNewImage.secure_url;
             }
+            return;
           }
 
           const updatePlaylist = await db.Playlist.aggregate([
@@ -408,23 +407,19 @@ async function updatePlaylist(req, res, next) {
               }
             },
           ]).exec();
-
-          if (updatePlaylist) {
             res.status(200).send({
               success: 'Playlist updated',
               data: updatePlaylist,
             });
             return;
-          }
-        } else {
-          return res
-            .status(400)
-            .send({ error: 'You are not the owner of this playlist' });
-          }
-      next();
+      }else{
+        return res.status(400).send({
+          error: 'The playlist has not been found, please try again',
+        });
+      }
   } catch (error) {
     res.status(500).send({
-      error: error.message,
+      data: error.message,
     });
     next(error);
   }
