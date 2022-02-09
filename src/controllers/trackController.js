@@ -336,31 +336,27 @@ async function playTrack(req, res, next) {
 
 async function getTracksForPlaylist(req, res, next) {
   try {
-    // console.log(req.body.tracks);
     const filter = req.body.tracks;
-    const tracks = await db.Track.find().select({ _id: 1 });
+    const tracks = await TrackRepo.find(
+      { _id: { $nin: filter } },
+      {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        genre: 0,
+      }
+    );
+    if (tracks.error) {
+      return res.status(400).send({ error: 'Error loading tracks' });
+    }
 
-    const test = tracks.filter(({ _id }) => {
-      return !filter.includes(_id);
-    });
-    // console.log(test);
-    const flattedIds = test.map((el) => {
-      return el._id;
-    });
+    if (tracks.data) {
+      return res.status(200).send({
+        success: 'Tracks loaded',
+        data: tracks.data,
+      });
+    }
 
-    const availableTracks = await db.Track.find({
-      _id: { $in: flattedIds },
-    }).select({ _id: 1, name: 1, thumbnail: 1 });
-
-    res.status(200).send({
-      success: 'Tracks loaded',
-      data: availableTracks,
-      // data: {
-      //   _id: availableTracks._id,
-      //   name: availableTracks.name,
-      //   thumbnail: availableTracks.thumbnail,
-      // },
-    });
     next();
   } catch (err) {
     next(err);
