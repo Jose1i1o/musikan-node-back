@@ -32,4 +32,6 @@ TrackRouter.put('/:id/like', trackController.likeTrack);
 
 TrackRouter.delete('/:id', trackController.deleteTrack);
 
+TrackRouter.get('/filter', trackController.getTracksForPlaylist);
+
 module.exports = TrackRouter;

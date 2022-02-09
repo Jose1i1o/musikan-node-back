@@ -335,6 +335,40 @@ async function playTrack(req, res, next) {
   next();
 }
 
+async function getTracksForPlaylist(req, res, next) {
+  try {
+    const userId = req.headers._id;
+    console.log(userId);
+    const filter = req.body.tracks;
+    const tracks = await TrackRepo.find(
+      {
+        _id: { $nin: filter },
+        $or: [{ userId: userId }, { $in: [userId, '$likedBy'] }],
+      },
+      {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        genre: 0,
+      }
+    );
+    if (tracks.error) {
+      return res.status(400).send({ error: 'Error loading tracks' });
+    }
+
+    if (tracks.data) {
+      return res.status(200).send({
+        success: 'Tracks loaded',
+        data: tracks.data,
+      });
+    }
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   uploadTrack,
   editTrack,
@@ -344,4 +378,5 @@ module.exports = {
   deleteTrack,
   getTrack,
   playTrack,
+  getTracksForPlaylist,
 };

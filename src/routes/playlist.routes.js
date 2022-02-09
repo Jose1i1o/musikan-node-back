@@ -9,22 +9,14 @@ PlaylistRouter.post(
     multerImage.single('thumbnail'),
     playlistController.createPlaylist);
 
-PlaylistRouter.get(
-    '/',
-    playlistController.getAllPlaylists);
+PlaylistRouter.get('/', playlistController.getAllPlaylists);
 
-PlaylistRouter.get(
-    '/public',
-    playlistController.getPublicPlaylists);
+PlaylistRouter.get('/public', playlistController.getPublicPlaylists);
 
+PlaylistRouter.patch('/:id', playlistController.addTrack);
+PlaylistRouter.get('/:id', playlistController.getPlaylistById);
 
-PlaylistRouter.get(
-    '/:id',
-    playlistController.getPlaylistById);
-
-PlaylistRouter.put(
-    '/:id/follow',
-    playlistController.followPlaylist);
+PlaylistRouter.put('/:id/follow', playlistController.followPlaylist);
 
 PlaylistRouter.patch(
     '/:id',

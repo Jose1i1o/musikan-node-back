@@ -1,7 +1,10 @@
-const { Playlist } = require('../models');
 const db = require('../models');
-const { UserRepo, PlayListRepository } = require('../repositories');
-const { DEFAULT_PLAYLIST_THUMBNAIL } = require('../utils/defaults');
+const {
+  UserRepo,
+  PlayListRepository,
+  PlaylistRepo,
+} = require('../repositories');
+
 const mongoose = require('mongoose');
 
 const { getPublicId } = require('../utils/cloudinaryUtils');
@@ -37,7 +40,7 @@ async function createPlaylist(req, res, next) {
         thumbnail: 1,
         followedBy: 1,
       }).exec();
-      // console.log(playlistsList)
+
       return res.status(201).send({
         success: 'Playlist created successfully',
         data: playlists,
@@ -66,7 +69,6 @@ async function followPlaylist(req, res, next) {
     }
     if (user.data) {
       const playlistId = req.params['id'];
-      console.log(playlistId);
       const followedPlaylists = await db.Playlist.findOneAndUpdate(
         { _id: playlistId },
         [
@@ -202,6 +204,44 @@ async function getAllPlaylists(req, res, next) {
   }
 }
 
+async function addTrack(req, res, next) {
+  const playListId = mongoose.Types.ObjectId(req.params.id);
+  const trackId = req.body.trackId;
+
+  try {
+    const addedTrack = await PlaylistRepo.findByIdAndUpdate(
+      playListId,
+      {
+        $push: { tracks: trackId },
+      },
+      {
+        new: true,
+      }
+    );
+    const populatedTracks = addedTrack.data.tracks.map((track) => {
+      return {
+        _id: track._id,
+        name: track.name,
+        thumbnail: track.thumbnail,
+      };
+    });
+
+    res.status(200).send({
+      success: 'Track added',
+      data: {
+        _id: addedTrack.data._id,
+        name: addedTrack.data.name,
+        description: addedTrack.data.description,
+        thumbnail: addedTrack.data.thumbnail,
+        tracks: populatedTracks,
+      },
+    });
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
 async function getPublicPlaylists(req, res, next) {
   try {
     const _id = req.headers._id;
@@ -274,10 +314,10 @@ async function getPlaylistById(req, res, next) {
         .send({ error: 'The user has not been found, please try again' });
     }
     if (user.data) {
-      console.log('there is user data');
       const playlistId = req.params['id'];
 
-      const playlistDetails = await db.Playlist.findOne({ _id: playlistId },
+      const playlistDetails = await db.Playlist.findOne(
+        { _id: playlistId },
         {
           id: 1,
           userId: 1,
@@ -354,7 +394,7 @@ async function updatePlaylist(req, res, next) {
               thumbnail = uploadNewImage.secure_url;
             }
           }
-          console.log(playlistId);
+
           const updatePlaylist = await db.Playlist.aggregate([
             {
               $match: { _id: mongoose.Types.ObjectId(playlistId) },
@@ -369,7 +409,6 @@ async function updatePlaylist(req, res, next) {
             },
           ]).exec();
 
-            console.log(updatePlaylist);
           if (updatePlaylist) {
             res.status(200).send({
               success: 'Playlist updated',
@@ -391,13 +430,11 @@ async function updatePlaylist(req, res, next) {
   }
 }
 
-
-
-
 module.exports = {
   createPlaylist,
   followPlaylist,
   getAllPlaylists,
+  addTrack,
   getPublicPlaylists,
   getPlaylistById,
   updatePlaylist
