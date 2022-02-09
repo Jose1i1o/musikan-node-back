@@ -23,4 +23,6 @@ PlaylistRouter.patch(
     multerImage.single('thumbnail'),
     playlistController.updatePlaylist);
 
+PlaylistRouter.delete('/:id', playlistController.deletePlaylist);
+
 module.exports = PlaylistRouter;

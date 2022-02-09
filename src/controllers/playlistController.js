@@ -363,21 +363,25 @@ async function getPlaylistById(req, res, next) {
 }
 
 async function updatePlaylist(req, res, next) {
+  const playlistId = req.params['id'];
+  const { name, description, publicAccessible } = req.body;
+  
+  const playlistSchema = {
+    name: name,
+    description: description,
+    publicAccessible: publicAccessible
+  }
   try {
-    const playlistId = req.params['id'];
-
-    const playlist = await db.Playlist.findOne({ _id: playlistId },
+    const playlist = await db.Playlist.findOne(
+      { _id: playlistId },
       {
-        userId: 1,
         name: 1,
         description: 1,
         thumbnail: 1,
         publicAccessible: 1,
-      });
-
+      })
       let thumbnail = playlist.thumbnail;
       
-      if (playlist) {
         if(req.file) {
             const publicId = await getPublicId(thumbnail);
             if (publicId) {
@@ -389,34 +393,18 @@ async function updatePlaylist(req, res, next) {
                 resource_type: 'image',
                 folder: 'playlists',
               });
-              thumbnail = uploadNewImage.secure_url;
+              playlistSchema.thumbnail = uploadNewImage.secure_url;
             }
-            return;
           }
 
-          const updatePlaylist = await db.Playlist.aggregate([
-            {
-              $match: { _id: mongoose.Types.ObjectId(playlistId) },
-            },
-            {
-              $project: {
-                name: 1,
-                description: 1,
-                thumbnail: 1,
-                publicAccessible: 1,
-              }
-            },
-          ]).exec();
+          await db.Playlist.findOneAndUpdate({ playlistId , playlistSchema, }, { new: true });
+
             res.status(200).send({
               success: 'Playlist updated',
-              data: updatePlaylist,
+              data: playlistSchema,
             });
             return;
-      }else{
-        return res.status(400).send({
-          error: 'The playlist has not been found, please try again',
-        });
-      }
+            
   } catch (error) {
     res.status(500).send({
       data: error.message,
@@ -432,5 +420,5 @@ module.exports = {
   addTrack,
   getPublicPlaylists,
   getPlaylistById,
-  updatePlaylist
+  updatePlaylist,
 };
