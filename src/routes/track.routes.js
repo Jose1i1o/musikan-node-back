@@ -19,7 +19,6 @@ TrackRouter.patch(
   trackController.editTrack
 );
 
-
 TrackRouter.get('/:id', trackController.getTrack);
 
 TrackRouter.get(
@@ -32,6 +31,6 @@ TrackRouter.put('/:id/like', trackController.likeTrack);
 
 TrackRouter.delete('/:id', trackController.deleteTrack);
 
-TrackRouter.get('/filter', trackController.getTracksForPlaylist);
+TrackRouter.put('/filter', trackController.getTracksForPlaylist);
 
 module.exports = TrackRouter;
