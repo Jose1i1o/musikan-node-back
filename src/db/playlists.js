@@ -1,13 +1,15 @@
 const db = require("../models");
 
 async function getBasePlaylists() {
-  let userId = await db.User.find({}, { _id: 1 }).lean();
-  let { _id: trackId } = await db.Track.findOne({}, { _id: 1 }).lean();
-  return [
+    let userId = await db.User.find({}, { _id: 1 }).lean();
+    // find all tracks
+    let trackId = await db.Track.find({}, { _id: 1 }).lean();
+    console.log(trackId);
+    return [
     {
-      userId: userId,
+      userId: userId.map(user => user._id),
       name: "PLaylist 1",
-      tracks: [trackId],
+      tracks: trackId.slice(0, 10).map(track => track._id),
       followedBy: userId,
       isFollowed: true,
       thumbnail:
@@ -18,9 +20,9 @@ async function getBasePlaylists() {
       primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 2",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -31,9 +33,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 3",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -44,9 +46,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 4",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -57,9 +59,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 5",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -70,9 +72,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 6",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -83,9 +85,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 7",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -96,9 +98,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 8",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -109,9 +111,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 9",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -122,9 +124,9 @@ async function getBasePlaylists() {
         primaryColor: "#fbdc00",
     },
     {
-        userId: userId,
+        userId: userId.map(user => user._id),
         name: "PLaylist 10",
-        tracks: [trackId],
+        tracks: trackId.slice(0, 10).map(track => track._id),
         followedBy: userId,
         isFollowed: true,
         thumbnail:

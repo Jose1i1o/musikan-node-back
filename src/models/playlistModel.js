@@ -42,10 +42,10 @@ const playlistSchema = new mongoose.Schema(
       default: 1,
       maxCount: 5,
     },
-    userId: {
+    userId: [{
       type: String,
       trim: true,
-    },
+    }],
     tracks: [{ type: String, ref: 'tracks' }],
     followedBy: [{ type: String }],
   },
