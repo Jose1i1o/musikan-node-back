@@ -6,7 +6,9 @@ class TrackRepository {
     return normalizeDBQuery(db.Track.create(options));
   }
   find(filter, options) {
-    return normalizeDBQuery(db.Track.find(filter, options).populate('genre'));
+    return normalizeDBQuery(
+      db.Track.find(filter, options).populate('genre', ['_id', 'name'])
+    );
   }
   findOne(filter, options) {
     return normalizeDBQuery(

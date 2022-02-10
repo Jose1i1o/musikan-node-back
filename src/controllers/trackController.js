@@ -110,22 +110,29 @@ async function getTrack(req, res, next) {
 
 async function getMyTracks(req, res, next) {
   try {
-    const findingTracks = await TrackRepo.find({ userId: req.headers._id });
-    const tracks = findingTracks.data.map((track) => {
-      return {
-        _id: track._id,
-        name: track.name,
-        thumbnail: track.thumbnail,
-        url: track.url,
-        likedBy: track.likedBy,
-        userId: track.userId,
-      };
-    });
+    const findingTracks = await TrackRepo.find(
+      { userId: req.headers._id },
+      {
+        _id: 1,
+        name: 1,
+        thumbnail: 1,
+        url: 1,
+        likedBy: 1,
+        userId: 1,
+      }
+    );
+    if (findingTracks.error) {
+      return res.status(400).send({ error: 'Error loading your tracks' });
+    }
 
-      res.status(200).send({
+    if (findingTracks.data) {
+      return res.status(200).send({
         success: 'Your tracks have been loaded',
-        data: tracks,
+        data: findingTracks.data,
       });
+    }
+
+    next();
   } catch (error) {
     error.message = error.message || 'Error loading your tracks';
   }
