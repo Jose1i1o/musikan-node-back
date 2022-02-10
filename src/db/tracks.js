@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 async function getBaseTracks() {
   let userId = await db.User.find({}, { _id: 1 }).lean();
-  let genre = await db.Genre.findOne({}, { _id: 1 }).lean();
+  // let genre = await db.Genre.findOne({}, { _id: 1 }).lean();
   return [
     {
       _id: "1",
@@ -16,7 +16,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '2',
@@ -29,7 +29,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '3',
@@ -42,7 +42,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '4',
@@ -55,7 +55,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '5',
@@ -68,7 +68,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '6',
@@ -81,7 +81,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '7',
@@ -94,7 +94,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '8',
@@ -107,7 +107,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '9',
@@ -120,7 +120,7 @@ async function getBaseTracks() {
       duration: 140,
       color: '#fbdc00',
       likedBy: userId,
-      genre: genre,
+      // genre: genre,
     },
     {
       _id: '10',
