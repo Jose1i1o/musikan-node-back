@@ -2,7 +2,7 @@ const db = require('../models');
 const mongoose = require('mongoose');
 
 async function getBaseTracks() {
-  let userId = await db.User.findOne({}, { _id: 1 }).lean();
+  let userId = await db.User.find({}, { _id: 1 }).lean();
   let genre = await db.Genre.findOne({}, { _id: 1 }).lean();
   return [
     {
@@ -15,7 +15,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -28,7 +28,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -41,7 +41,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -54,7 +54,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -67,7 +67,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -80,7 +80,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -93,7 +93,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -106,7 +106,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -119,7 +119,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
       genre: genre,
     },
     {
@@ -132,7 +132,7 @@ async function getBaseTracks() {
         'https://res.cloudinary.com/dz5nspe7f/image/upload/v1632147267/music-uploads/bensound-creativeminds_vjqm2b.jpg',
       duration: 140,
       color: '#fbdc00',
-      likedBy: [userId],
+      likedBy: userId,
     },
   ];
 }
