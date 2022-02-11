@@ -78,6 +78,26 @@ function getBaseGenres() {
         _id: "19",
         name: "other",
       },
+      {
+        _id: "20",
+        name: "piano",
+      },
+      {
+        _id: "21",
+        name: "poprock",
+      },
+      {
+        _id: "22",
+        name: "chillout",
+      },
+      {
+        _id: "23",
+        name: "reggaeton",
+      },
+      {
+        _id: "24",
+        name: "alternative",
+      },
     ];
   }
   
