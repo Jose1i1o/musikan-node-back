@@ -319,6 +319,7 @@ async function playTrack(req, res, next) {
     return res.status(400).send({ error: 'Can not load your track' });
   }
   if (track.data) {
+    console.log(track.data);
     const { _id, name, thumbnail, url } = track.data[0];
     return res.status(200).send({
       success: 'Track found',
