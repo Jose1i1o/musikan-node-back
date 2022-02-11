@@ -455,7 +455,6 @@ async function deletePlaylist(req, res, next) {
       }
     );
     let thumbnail = playlist.thumbnail;
-    console.log(thumbnail);
     const publicId = await getPublicId(thumbnail);
     if (publicId) {
       await cloudinary.uploader.destroy(publicId, {

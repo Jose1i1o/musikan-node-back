@@ -318,12 +318,17 @@ async function likeTrack(req, res, next) {
         data: { _id: updateLike.data._id, like: like },
       });
     }
-  } catch (err) {
-    next(err);
+    next();
+  } catch (error) {
+    res.status(500).send({
+      data: error.message,
+    });
+    next(error);
   }
 }
 
 async function playTrack(req, res, next) {
+  try {
   const track = await TrackRepo.find({ _id: req.params.id });
 
   if (track.error) {
@@ -341,8 +346,13 @@ async function playTrack(req, res, next) {
       },
     });
   }
-
   next();
+} catch (error) {
+  res.status(500).send({
+    data: error.message,
+  });
+  next(error);
+}
 }
 
 async function getTracksForPlaylist(req, res, next) {
