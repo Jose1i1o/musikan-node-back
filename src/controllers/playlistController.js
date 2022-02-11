@@ -211,12 +211,29 @@ async function addTrack(req, res, next) {
   const playListId = mongoose.Types.ObjectId(req.params.id);
   const tracks = req.body.tracks;
 
+  console.log(tracks);
+
   try {
+    const findPlaylist = await PlaylistRepo.findOne({ _id: playListId });
+
+    const numSongs = findPlaylist.data.numberSongs;
+
     const addedTrack = await PlaylistRepo.findByIdAndUpdate(
       playListId,
       {
-        $push: { tracks: tracks },
+        $inc: { numberSongs: 1 },
+        // $push: { tracks: { trackId: tracks[0],order:11 } },
+
+        $push: {
+          tracks: tracks.map((track, idx) => {
+            return {
+              trackId: track,
+              order: numSongs + idx,
+            };
+          }),
+        },
       },
+      // { $inc: { order: 1 } },
       {
         new: true,
       }
@@ -302,6 +319,7 @@ async function getPublicPlaylists(req, res, next) {
 async function getPlaylistById(req, res, next) {
   try {
     const _id = req.headers._id;
+    console.log(_id);
 
     const playlistId = req.params['id'];
 
@@ -346,17 +364,24 @@ async function getPlaylistById(req, res, next) {
         tracks: 1,
       }
     ).populate({
-      path: 'tracks',
+      path: 'tracks.trackId',
       populate: [{ path: 'userId' }, { path: 'genre' }],
     });
 
     const playlistTracks = playlistDetails.tracks.map((track) => {
+      console.log(track.trackId);
       return {
-        _id: track._id,
-        name: track.name,
-        thumbnail: track.thumbnail,
-        user: { _id: track.userId._id, userName: track.userId.userName },
-        genre: { _id: track.genre._id, name: track.genre.name },
+        _id: track.trackId._id,
+        name: track.trackId.name,
+        thumbnail: track.trackId.thumbnail,
+        user: {
+          _id: track.trackId.userId._id,
+          userName: track.trackId.userId.userName,
+        },
+        genre: {
+          _id: track.trackId.genre._id,
+          name: track.trackId.genre.name,
+        },
       };
     });
 
@@ -478,6 +503,10 @@ async function deletePlaylist(req, res, next) {
   }
 }
 
+async function orderTracks(req, res, next) {
+  next();
+}
+
 module.exports = {
   createPlaylist,
   followPlaylist,
@@ -487,4 +516,5 @@ module.exports = {
   getPlaylistById,
   updatePlaylist,
   deletePlaylist,
+  orderTracks,
 };
