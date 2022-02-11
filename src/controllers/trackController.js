@@ -125,10 +125,20 @@ async function getMyTracks(req, res, next) {
       return res.status(400).send({ error: 'Error loading your tracks' });
     }
 
+    const tracks = findingTracks.data.map((track) => {
+      return {
+        _id: track._id,
+        name: track.name,
+        thumbnail: track.thumbnail,
+        genre: track.genre.name,
+        user: { _id: track.userId._id, userName: track.userId.userName },
+      };
+    });
+
     if (findingTracks.data) {
       return res.status(200).send({
         success: 'Your tracks have been loaded',
-        data: findingTracks.data,
+        data: tracks,
       });
     }
 
@@ -259,6 +269,7 @@ async function getLikedTracks(req, res, next) {
           thumbnail: track.thumbnail,
           genre: track.genre.name,
           owner: track.userId === req.headers._id ? true : false,
+          user: { _id: track.userId._id, userName: track.userId.userName },
         };
       });
 
@@ -337,7 +348,15 @@ async function playTrack(req, res, next) {
 async function getTracksForPlaylist(req, res, next) {
   try {
     const userId = req.headers._id;
-    const filter = req.body.tracks;
+    const playlistId = req.params.id;
+
+    const playlist = await db.Playlist.findById(playlistId).populate('tracks');
+    console.log(playlist.tracks);
+    const filter = playlist.tracks.map((track) => {
+      return track._id;
+    });
+
+    // const filter = req.body.tracks;
     const tracks = await TrackRepo.find(
       {
         _id: { $nin: filter },
