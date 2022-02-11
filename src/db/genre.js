@@ -72,7 +72,7 @@ function getBaseGenres() {
       },
       {
         _id: "18",
-        name: "cumbia",
+        name: "electropop",
       },
       {
         _id: "19",
@@ -101,6 +101,22 @@ function getBaseGenres() {
       {
         _id: "25",
         name: "groovy",
+      },
+      {
+        _id: "26",
+        name: "urban",
+      },
+      {
+        _id: "27",
+        name: "hiphop",
+      },
+      {
+        _id: "28",
+        name: "reggae",
+      },
+      {
+        _id: "29",
+        name: "house",
       },
     ];
   }
