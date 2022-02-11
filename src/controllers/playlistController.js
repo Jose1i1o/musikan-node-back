@@ -1,15 +1,11 @@
 const db = require('../models');
-const {
-  UserRepo,
-  PlayListRepository,
-  PlaylistRepo,
-  TrackRepo,
-} = require('../repositories');
+const { UserRepo, PlaylistRepo, TrackRepo } = require('../repositories');
 
 const mongoose = require('mongoose');
 
 const { getPublicId } = require('../utils/cloudinaryUtils');
 const { cloudinary } = require('../services/cloudinary');
+const playlistRepository = require('../repositories/playlistRepository');
 
 async function createPlaylist(req, res, next) {
   try {
@@ -211,8 +207,6 @@ async function addTrack(req, res, next) {
   const playListId = mongoose.Types.ObjectId(req.params.id);
   const tracks = req.body.tracks;
 
-  console.log(tracks);
-
   try {
     const findPlaylist = await PlaylistRepo.findOne({ _id: playListId });
 
@@ -319,30 +313,8 @@ async function getPublicPlaylists(req, res, next) {
 async function getPlaylistById(req, res, next) {
   try {
     const _id = req.headers._id;
-    console.log(_id);
 
     const playlistId = req.params['id'];
-
-    // const playlistDetails = await db.Playlist.findById(
-    //   mongoose.Types.ObjectId(playlistId),
-    //   {
-    //     id: 1,
-    //     userId: 1,
-    //     name: 1,
-    //     description: 1,
-    //     thumbnail: 1,
-    //     publicAccessible: 1,
-    //     followedBy: 1,
-    //     isFollowed: {
-    //       $cond: {
-    //         if: { $in: [_id, '$followedBy'] },
-    //         then: true,
-    //         else: false,
-    //       },
-    //     },
-    //     tracks: 1,
-    //   }
-    // ).populate('tracks', ['id', 'name', 'thumbnail']);
 
     const playlistDetails = await db.Playlist.findById(
       mongoose.Types.ObjectId(playlistId),
@@ -369,9 +341,10 @@ async function getPlaylistById(req, res, next) {
     });
 
     const playlistTracks = playlistDetails.tracks.map((track) => {
-      console.log(track.trackId);
+      console.log(playlistDetails);
       return {
         _id: track.trackId._id,
+        order: track.order,
         name: track.trackId.name,
         thumbnail: track.trackId.thumbnail,
         user: {
@@ -504,7 +477,57 @@ async function deletePlaylist(req, res, next) {
 }
 
 async function orderTracks(req, res, next) {
-  next();
+  const { track, index } = req.body;
+  console.log(track);
+
+  const { id } = req.params;
+  try {
+    const playlist = await PlaylistRepo.findOne({ _id: id });
+
+    const oldOrder = playlist.data.tracks.find(
+      (el) => el.trackId === track
+    ).order;
+
+    const orderedList = playlist.data.tracks.map((playlistTrack) => {
+      if (playlistTrack.trackId == track) {
+        return { trackId: playlistTrack.trackId, order: index };
+      }
+
+      if (index < oldOrder) {
+        if (playlistTrack.order >= index && playlistTrack.order <= oldOrder) {
+          return {
+            trackId: playlistTrack.trackId,
+            order: playlistTrack.order + 1,
+          };
+        }
+      }
+
+      if (index > oldOrder) {
+        if (playlistTrack.order <= index && playlistTrack.order >= oldOrder) {
+          return {
+            trackId: playlistTrack.trackId,
+            order: playlistTrack.order - 1,
+          };
+        }
+      }
+
+      return { trackId: playlistTrack.trackId, order: playlistTrack.order };
+    });
+
+    const updatedPlaylist = await PlaylistRepo.findByIdAndUpdate(
+      { _id: id },
+      { tracks: orderedList },
+      { new: true }
+    );
+
+    return res
+      .status(200)
+      .send({ success: 'SUCCESS', data: updatedPlaylist.data.tracks });
+
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 module.exports = {
