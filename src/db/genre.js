@@ -98,6 +98,10 @@ function getBaseGenres() {
         _id: "24",
         name: "alternative",
       },
+      {
+        _id: "25",
+        name: "groovy",
+      },
     ];
   }
   
