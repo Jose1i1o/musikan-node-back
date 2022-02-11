@@ -318,19 +318,23 @@ async function likeTrack(req, res, next) {
         data: { _id: updateLike.data._id, like: like },
       });
     }
-  } catch (err) {
-    next(err);
+    next();
+  } catch (error) {
+    res.status(500).send({
+      data: error.message,
+    });
+    next(error);
   }
 }
 
 async function playTrack(req, res, next) {
+  try {
   const track = await TrackRepo.find({ _id: req.params.id });
 
   if (track.error) {
     return res.status(400).send({ error: 'Can not load your track' });
   }
   if (track.data) {
-    console.log(track.data);
     const { _id, name, thumbnail, url } = track.data[0];
     return res.status(200).send({
       success: 'Track found',
@@ -342,8 +346,13 @@ async function playTrack(req, res, next) {
       },
     });
   }
-
   next();
+} catch (error) {
+  res.status(500).send({
+    data: error.message,
+  });
+  next(error);
+}
 }
 
 async function getTracksForPlaylist(req, res, next) {

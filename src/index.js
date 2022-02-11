@@ -10,7 +10,6 @@ connect().then(async function onServerInit() {
   // await seedPlaylist();
   // await seedGenres();
   // await seedUsers();
-
 });
 
 // port
