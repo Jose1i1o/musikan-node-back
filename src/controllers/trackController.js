@@ -132,6 +132,7 @@ async function getMyTracks(req, res, next) {
         thumbnail: track.thumbnail,
         genre: track.genre.name,
         user: { _id: track.userId._id, userName: track.userId.userName },
+        like: track.likedBy.includes(req.headers._id) ? true : false,
       };
     });
 
@@ -329,30 +330,30 @@ async function likeTrack(req, res, next) {
 
 async function playTrack(req, res, next) {
   try {
-  const track = await TrackRepo.find({ _id: req.params.id });
+    const track = await TrackRepo.find({ _id: req.params.id });
 
-  if (track.error) {
-    return res.status(400).send({ error: 'Can not load your track' });
-  }
-  if (track.data) {
-    const { _id, name, thumbnail, url } = track.data[0];
-    return res.status(200).send({
-      success: 'Track found',
-      data: {
-        _id: _id,
-        name: name,
-        thumbnail: thumbnail,
-        url: url,
-      },
+    if (track.error) {
+      return res.status(400).send({ error: 'Can not load your track' });
+    }
+    if (track.data) {
+      const { _id, name, thumbnail, url } = track.data[0];
+      return res.status(200).send({
+        success: 'Track found',
+        data: {
+          _id: _id,
+          name: name,
+          thumbnail: thumbnail,
+          url: url,
+        },
+      });
+    }
+    next();
+  } catch (error) {
+    res.status(500).send({
+      data: error.message,
     });
+    next(error);
   }
-  next();
-} catch (error) {
-  res.status(500).send({
-    data: error.message,
-  });
-  next(error);
-}
 }
 
 async function getTracksForPlaylist(req, res, next) {
