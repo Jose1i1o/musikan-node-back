@@ -5,10 +5,18 @@ const morgan = require('morgan');
 const cors = require('cors');
 const { config } = require('./config');
 
-const { UserRouter, TrackRouter, GenreRouter, MeRouter, PlaylistRouter, SearchRouter } = require('./routes');
+const {
+  UserRouter,
+  TrackRouter,
+  GenreRouter,
+  MeRouter,
+  PlaylistRouter,
+  SearchRouter,
+} = require('./routes');
 const { errorMiddleware } = require('./middleware');
 
 const app = express();
+app.set('port', 4000);
 
 app.use(morgan('dev'));
 app.use(helmet());
