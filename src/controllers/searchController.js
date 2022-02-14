@@ -3,7 +3,6 @@ const db = require('../models');
 async function searchTracks(req, res, next) {
     try {
         const searchText = req.query?.q;
-        // const userId = req.headers._id;
 
         if (!searchText) {
             return res.status(400).json({
