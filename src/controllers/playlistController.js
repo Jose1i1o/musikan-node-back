@@ -341,7 +341,6 @@ async function getPlaylistById(req, res, next) {
     });
 
     const playlistTracks = playlistDetails.tracks.map((track) => {
-      console.log(playlistDetails);
       return {
         _id: track.trackId._id,
         order: track.order,
@@ -478,7 +477,6 @@ async function deletePlaylist(req, res, next) {
 
 async function orderTracks(req, res, next) {
   const { track, index } = req.body;
-  console.log(track);
 
   const { id } = req.params;
   try {
