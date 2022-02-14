@@ -5,7 +5,6 @@ const mongoose = require('mongoose');
 
 const { getPublicId } = require('../utils/cloudinaryUtils');
 const { cloudinary } = require('../services/cloudinary');
-const playlistRepository = require('../repositories/playlistRepository');
 
 async function createPlaylist(req, res, next) {
   try {
@@ -248,6 +247,7 @@ async function addTrack(req, res, next) {
     next(err);
   }
 }
+
 async function getPublicPlaylists(req, res, next) {
   try {
     const _id = req.headers._id;
