@@ -158,7 +158,9 @@ async function getUserTracks(req, res, next) {
     }
 
     if (track.data) {
-      return res.status(200).send({ success: 'succeed', data: track.data });
+      return res
+        .status(200)
+        .send({ success: 'Loading user tracks succeed', data: track.data });
     }
     next();
   } catch (err) {
@@ -183,7 +185,9 @@ async function getUserPlaylist(req, res, next) {
     }
 
     if (track.data) {
-      return res.status(200).send({ success: 'succeed', data: track.data });
+      return res
+        .status(200)
+        .send({ success: 'Loading user playlists succeed', data: track.data });
     }
     next();
   } catch (err) {
