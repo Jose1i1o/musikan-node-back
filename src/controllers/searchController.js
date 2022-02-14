@@ -21,7 +21,14 @@ async function searchTracks(req, res, next) {
                     { name: { $regex: searchText, $options: 'i' } }, // i = case insensitive
                     { genre: { $regex: searchText, $options: 'i' } },
                 ],
-            }
+                },
+                {
+                    name: 1,
+                    url: 1,
+                    thumbnail: 1,
+                    genre: 1,
+                    likedBy: 1,
+                },
             ).lean();
 
             const playlists = await db.Playlist.find(
@@ -30,24 +37,34 @@ async function searchTracks(req, res, next) {
                     { name: { $regex: searchText, $options: 'i' } },
                     { description: { $regex: searchText, $options: 'i' } },
                 ],
-            }
+                },
+                {
+                name: 1,
+                description: 1,
+                thumbnail: 1,
+                publicAccessible: 1,
+                followedBy: 1,
+                }
             ).lean();
+
+            // return those users that match their userName field only
 
             const users = await db.User.find(
                 {
-                $match: {
-                    $or: [
-                        { username: { $regex: searchText, $options: 'i' } },
-                        { email: { $regex: searchText, $options: 'i' } },
-                    ],
+                $or: [
+                    { userName: { $regex: searchText, $options: 'i' } },
+                ],
                 },
-            }
+                {
+                userName: 1,
+                thumbnail: 1,
+                }
             ).lean();
 
             return res.status(200).json({
-                tracks,
-                playlists,
                 users,
+                playlists,
+                tracks,
             });
         }
         next();
