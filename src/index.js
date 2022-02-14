@@ -18,7 +18,7 @@ connect().then(async function onServerInit() {
 });
 
 // port
-app.listen(app.get('port'), () => {
+app.listen(5000, '0.0.0.0', () => {
   CONFIG.development.logger.info(
     `Server running at ${CONFIG.development.app.PORT}`
   );

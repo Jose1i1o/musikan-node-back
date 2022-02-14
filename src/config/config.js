@@ -45,8 +45,7 @@ const CONFIG = {
       type: FB_TYPE,
       project_id: FB_PROJECT_ID,
       private_key_id: FB_PRIVATE_KEY_ID,
-      private_key: FB_PRIVATE_KEY
-        .replace(/\\n/g, '\n'),
+      private_key: FB_PRIVATE_KEY.replace(/\\n/g, '\n'),
       client_email: FB_CLIENT_EMAIL,
       client_id: FB_CLIENT_ID,
       auth_uri: FB_AUTH_URI,

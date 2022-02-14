@@ -16,7 +16,6 @@ const {
 const { errorMiddleware } = require('./middleware');
 
 const app = express();
-app.set('port', 4000);
 
 app.use(morgan('dev'));
 app.use(helmet());
