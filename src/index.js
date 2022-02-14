@@ -17,10 +17,8 @@ connect().then(async function onServerInit() {
   // await seedUsers();
 });
 
-app.set('port', CONFIG.development.app.PORT || 4000);
-
 // port
-app.listen(app.get('port'), () => {
+app.listen(4000, () => {
   CONFIG.development.logger.info(
     `Server running at ${CONFIG.development.app.PORT}`
   );
