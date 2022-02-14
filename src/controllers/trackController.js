@@ -391,8 +391,11 @@ async function getTracksForPlaylist(req, res, next) {
     }
 
     next();
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    res.status(500).send({
+      error: error.message,
+    });
+    next(error);
   }
 }
 
