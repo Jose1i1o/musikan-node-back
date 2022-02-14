@@ -12,5 +12,6 @@ UserRouter.post(
   userController.updateAvatar
 );
 UserRouter.patch('/update', userController.updateUser);
+UserRouter.get('/:id', userController.getUser);
 
 module.exports = UserRouter;

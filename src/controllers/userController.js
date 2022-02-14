@@ -120,9 +120,12 @@ async function updateUser(req, res, next) {
   }
 }
 
+async function getUser(req, res, next) {}
+
 module.exports = {
   signUp,
   signOut,
   updateAvatar,
   updateUser,
+  getUser,
 };
