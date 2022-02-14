@@ -1,15 +1,11 @@
 const db = require('../models');
-const {
-  UserRepo,
-  PlayListRepository,
-  PlaylistRepo,
-  TrackRepo,
-} = require('../repositories');
+const { UserRepo, PlaylistRepo, TrackRepo } = require('../repositories');
 
 const mongoose = require('mongoose');
 
 const { getPublicId } = require('../utils/cloudinaryUtils');
 const { cloudinary } = require('../services/cloudinary');
+const playlistRepository = require('../repositories/playlistRepository');
 
 async function createPlaylist(req, res, next) {
   try {
@@ -212,11 +208,26 @@ async function addTrack(req, res, next) {
   const tracks = req.body.tracks;
 
   try {
+    const findPlaylist = await PlaylistRepo.findOne({ _id: playListId });
+
+    const numSongs = findPlaylist.data.numberSongs;
+
     const addedTrack = await PlaylistRepo.findByIdAndUpdate(
       playListId,
       {
-        $push: { tracks: tracks },
+        $inc: { numberSongs: 1 },
+        // $push: { tracks: { trackId: tracks[0],order:11 } },
+
+        $push: {
+          tracks: tracks.map((track, idx) => {
+            return {
+              trackId: track,
+              order: numSongs + idx,
+            };
+          }),
+        },
       },
+      // { $inc: { order: 1 } },
       {
         new: true,
       }
@@ -324,7 +335,28 @@ async function getPlaylistById(req, res, next) {
         },
         tracks: 1,
       }
-    ).populate('tracks', ['id', 'name', 'thumbnail']);
+    ).populate({
+      path: 'tracks.trackId',
+      populate: [{ path: 'userId' }, { path: 'genre' }],
+    });
+
+    const playlistTracks = playlistDetails.tracks.map((track) => {
+      console.log(playlistDetails);
+      return {
+        _id: track.trackId._id,
+        order: track.order,
+        name: track.trackId.name,
+        thumbnail: track.trackId.thumbnail,
+        user: {
+          _id: track.trackId.userId._id,
+          userName: track.trackId.userId.userName,
+        },
+        genre: {
+          _id: track.trackId.genre._id,
+          name: track.trackId.genre.name,
+        },
+      };
+    });
 
     if (playlistDetails) {
       const owned = playlistDetails.userId === _id ? true : false;
@@ -332,8 +364,9 @@ async function getPlaylistById(req, res, next) {
       res.status(200).send({
         success: 'Playlist found',
         data: {
-          owned,
-          playlistDetails,
+          ...playlistDetails._doc,
+          owned: owned,
+          tracks: playlistTracks,
         },
       });
       return;
@@ -355,12 +388,12 @@ async function getPlaylistById(req, res, next) {
 async function updatePlaylist(req, res, next) {
   const playlistId = req.params['id'];
   const { name, description, publicAccessible } = req.body;
-  
+
   const playlistSchema = {
     name: name,
     description: description,
-    publicAccessible: publicAccessible
-  }
+    publicAccessible: publicAccessible,
+  };
   try {
     const playlistId = req.params['id'];
 
@@ -371,32 +404,36 @@ async function updatePlaylist(req, res, next) {
         description: 1,
         thumbnail: 1,
         publicAccessible: 1,
-      })
-      let thumbnail = playlist.thumbnail;
-      
-        if(req.file) {
-            const publicId = await getPublicId(thumbnail);
-            if (publicId) {
-              await cloudinary.uploader.destroy(publicId, {
-                resource_type: 'image',
-              });
+      }
+    );
+    let thumbnail = playlist.thumbnail;
 
-              const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
-                resource_type: 'image',
-                folder: 'playlists',
-              });
-              playlistSchema.thumbnail = uploadNewImage.secure_url;
-            }
-          }
+    if (req.file) {
+      const publicId = await getPublicId(thumbnail);
+      if (publicId) {
+        await cloudinary.uploader.destroy(publicId, {
+          resource_type: 'image',
+        });
 
-          const updated = await db.Playlist.findOneAndUpdate({ _id: playlistId }, playlistSchema, { new: true });
+        const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
+          resource_type: 'image',
+          folder: 'playlists',
+        });
+        playlistSchema.thumbnail = uploadNewImage.secure_url;
+      }
+    }
 
-            res.status(200).send({
-              success: 'Playlist updated',
-              data: playlistSchema,
-            });
-            return;
-            
+    const updated = await db.Playlist.findOneAndUpdate(
+      { _id: playlistId },
+      playlistSchema,
+      { new: true }
+    );
+
+    res.status(200).send({
+      success: 'Playlist updated',
+      data: playlistSchema,
+    });
+    return;
   } catch (error) {
     res.status(500).send({
       data: error.message,
@@ -413,26 +450,83 @@ async function deletePlaylist(req, res, next) {
       { _id: playlistId },
       {
         thumbnail: 1,
-      })
-      let thumbnail = playlist.thumbnail;
-      const publicId = await getPublicId(thumbnail);
-      if (publicId) {
-        await cloudinary.uploader.destroy(publicId, {
-          resource_type: 'image',
-          folder: 'playlists',
-        });
       }
-      const deletePlaylist = await db.Playlist.findOneAndDelete({ _id: playlistId });
-      res.status(200).send({
-        success: 'Playlist deleted',
-        data: deletePlaylist.name,
+    );
+    let thumbnail = playlist.thumbnail;
+    const publicId = await getPublicId(thumbnail);
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId, {
+        resource_type: 'image',
+        folder: 'playlists',
       });
-      return;
+    }
+    const deletePlaylist = await db.Playlist.findOneAndDelete({
+      _id: playlistId,
+    });
+    res.status(200).send({
+      success: 'Playlist deleted',
+      data: deletePlaylist.name,
+    });
+    return;
   } catch (error) {
     res.status(500).send({
       data: error.message,
     });
     next(error);
+  }
+}
+
+async function orderTracks(req, res, next) {
+  const { track, index } = req.body;
+  console.log(track);
+
+  const { id } = req.params;
+  try {
+    const playlist = await PlaylistRepo.findOne({ _id: id });
+
+    const oldOrder = playlist.data.tracks.find(
+      (el) => el.trackId === track
+    ).order;
+
+    const orderedList = playlist.data.tracks.map((playlistTrack) => {
+      if (playlistTrack.trackId == track) {
+        return { trackId: playlistTrack.trackId, order: index };
+      }
+
+      if (index < oldOrder) {
+        if (playlistTrack.order >= index && playlistTrack.order <= oldOrder) {
+          return {
+            trackId: playlistTrack.trackId,
+            order: playlistTrack.order + 1,
+          };
+        }
+      }
+
+      if (index > oldOrder) {
+        if (playlistTrack.order <= index && playlistTrack.order >= oldOrder) {
+          return {
+            trackId: playlistTrack.trackId,
+            order: playlistTrack.order - 1,
+          };
+        }
+      }
+
+      return { trackId: playlistTrack.trackId, order: playlistTrack.order };
+    });
+
+    const updatedPlaylist = await PlaylistRepo.findByIdAndUpdate(
+      { _id: id },
+      { tracks: orderedList },
+      { new: true }
+    );
+
+    return res
+      .status(200)
+      .send({ success: 'SUCCESS', data: updatedPlaylist.data.tracks });
+
+    next();
+  } catch (err) {
+    next(err);
   }
 }
 
@@ -445,4 +539,5 @@ module.exports = {
   getPlaylistById,
   updatePlaylist,
   deletePlaylist,
+  orderTracks,
 };

@@ -5,9 +5,10 @@ const { authMiddleware } = require('../middleware');
 const { playlistController } = require('../controllers');
 
 PlaylistRouter.post(
-    '/',
-    multerImage.single('thumbnail'),
-    playlistController.createPlaylist);
+  '/',
+  multerImage.single('thumbnail'),
+  playlistController.createPlaylist
+);
 
 PlaylistRouter.get('/', playlistController.getAllPlaylists);
 
@@ -19,10 +20,13 @@ PlaylistRouter.get('/:id', playlistController.getPlaylistById);
 PlaylistRouter.put('/:id/follow', playlistController.followPlaylist);
 
 PlaylistRouter.patch(
-    '/update/:id',
-    multerImage.single('thumbnail'),
-    playlistController.updatePlaylist);
+  '/update/:id',
+  multerImage.single('thumbnail'),
+  playlistController.updatePlaylist
+);
 
 PlaylistRouter.delete('/:id', playlistController.deletePlaylist);
+
+PlaylistRouter.put('/order/:id', playlistController.orderTracks);
 
 module.exports = PlaylistRouter;
