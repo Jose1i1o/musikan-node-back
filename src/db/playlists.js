@@ -28,13 +28,14 @@ async function getBasePlaylists() {
     let playlist9 = tracksIds.slice(8, 9);
     let playlist10 = tracksIds.slice(9, 10);
 
-
+    const order = 0;
 
     return [
     {
       userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
       name: "Road trip! All the masters I need!",
-      tracks: playlist1[0].map(track => track.toString()),
+      // return a list of tracks in an object and its order in a separate object
+      tracks: playlist1[0].map(track => ({ trackId: track, order: order})),
       followedBy: userId,
       isFollowed: true,
       thumbnail:
@@ -47,7 +48,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Motorcycle Mama!",
-        tracks: playlist2[0].map(track => track.toString()),
+        tracks: playlist2[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -60,7 +61,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Chillout with the beats",
-        tracks: playlist3[0].map(track => track.toString()),
+        tracks: playlist3[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -73,7 +74,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Boogie with the beats",
-        tracks: playlist4[0].map(track => track.toString()),
+        tracks: playlist4[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -86,7 +87,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Smile. You are beautiful",
-        tracks: playlist5[0].map(track => track.toString()),
+        tracks: playlist5[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -99,7 +100,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Staying home",
-        tracks: playlist6[0].map(track => track.toString()),
+        tracks: playlist6[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -112,7 +113,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Space hits!",
-        tracks: playlist7[0].map(track => track.toString()),
+        tracks: playlist7[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -125,7 +126,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Hits for the weekend",
-        tracks: playlist8[0].map(track => track.toString()),
+        tracks: playlist8[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -138,7 +139,7 @@ async function getBasePlaylists() {
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Party time",
-        tracks: playlist9[0].map(track => track.toString()),
+        tracks: playlist9[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
@@ -148,23 +149,10 @@ async function getBasePlaylists() {
         publicAccessible: false,
         primaryColor: "#fbdc00",
     },
-    // {
-    //     userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
-    //     name: "Old but gold",
-    //     tracks: playlist11[0].map(track => track.toString()),
-    //     followedBy: userId,
-    //     isFollowed: true,
-    //     thumbnail:
-    //         "https://res.cloudinary.com/dmkdsujzh/image/upload/v1644626590/tracks-thumbnails-dev/imani-bahati-ut67iFuoD2o-unsplash_nysrig.jpg",
-    //     collaborative: false,
-    //     description: "Oldies but goldies. Let´s get old and old.",
-    //     publicAccessible: false,
-    //     primaryColor: "#fbdc00",
-    // },
     {
         userId: userId[Math.ceil(Math.random() * userId.length) - 1]._id,
         name: "Glitter",
-        tracks: playlist10[0].map(track => track.toString()),
+        tracks: playlist10[0].map(track => ({ trackId: track, order: order})),
         followedBy: userId,
         isFollowed: true,
         thumbnail:
