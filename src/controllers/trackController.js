@@ -362,8 +362,9 @@ async function getTracksForPlaylist(req, res, next) {
     const playlistId = req.params.id;
 
     const playlist = await db.Playlist.findById(playlistId).populate('tracks');
+
     const filter = playlist.tracks.map((track) => {
-      return track._id;
+      return track.trackId;
     });
 
     // const filter = req.body.tracks;
