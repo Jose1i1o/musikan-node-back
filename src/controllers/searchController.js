@@ -29,7 +29,7 @@ async function searchTracks(req, res, next) {
                     genre: 1,
                     likedBy: 1,
                 },
-            ).lean();
+            ).sort({ likedBy: -1 });
 
             const playlists = await db.Playlist.find(
                 {
@@ -45,7 +45,7 @@ async function searchTracks(req, res, next) {
                 publicAccessible: 1,
                 followedBy: 1,
                 }
-            ).lean();
+            ).sort({ followedBy: -1 }).lean();
 
             // return those users that match their userName field only
 
@@ -59,7 +59,7 @@ async function searchTracks(req, res, next) {
                 userName: 1,
                 thumbnail: 1,
                 }
-            ).lean();
+            ).sort({ userName: 1 }).lean();
 
             return res.status(200).json({
                 users,
