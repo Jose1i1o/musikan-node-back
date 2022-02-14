@@ -215,7 +215,7 @@ async function addTrack(req, res, next) {
     const addedTrack = await PlaylistRepo.findByIdAndUpdate(
       playListId,
       {
-        $inc: { numberSongs: 1 },
+        $inc: { numberSongs: tracks.length },
         // $push: { tracks: { trackId: tracks[0],order:11 } },
 
         $push: {
