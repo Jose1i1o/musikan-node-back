@@ -12,6 +12,9 @@ UserRouter.post(
   userController.updateAvatar
 );
 UserRouter.patch('/update', userController.updateUser);
+
 UserRouter.get('/:id', userController.getUser);
+UserRouter.get('/:id/tracks', userController.getUserTracks);
+UserRouter.get('/:id/playlist', userController.getUserPlaylist);
 
 module.exports = UserRouter;

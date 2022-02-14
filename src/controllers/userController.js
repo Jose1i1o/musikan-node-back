@@ -1,4 +1,4 @@
-const { UserRepo } = require('../repositories');
+const { UserRepo, TrackRepo, PlaylistRepo } = require('../repositories');
 const db = require('../models');
 
 const { cloudinary } = require('../services/cloudinary');
@@ -120,7 +120,76 @@ async function updateUser(req, res, next) {
   }
 }
 
-async function getUser(req, res, next) {}
+async function getUser(req, res, next) {
+  const userId = req.params.id;
+
+  try {
+    const user = await UserRepo.findOne(
+      { _id: userId },
+      { _id: 1, userName: 1, profilePicture: 1 }
+    );
+
+    if (user.error) {
+      return res.status(400).send({ error: 'Error loading user data' });
+    }
+
+    if (user.data) {
+      return res
+        .status(200)
+        .send({ success: 'Loading user data succeed', data: user.data });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getUserTracks(req, res, next) {
+  const userId = req.params.id;
+
+  try {
+    const track = await TrackRepo.find(
+      { userId: userId },
+      { _id: 1, name: 1, thumbnail: 1, genre: 1 }
+    );
+
+    if (track.error) {
+      return res.status(400).send({ error: 'Error loading user tracks' });
+    }
+
+    if (track.data) {
+      return res.status(200).send({ success: 'succeed', data: track.data });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getUserPlaylist(req, res, next) {
+  const userId = req.params.id;
+
+  try {
+    const track = await PlaylistRepo.find(
+      {
+        userId: userId,
+        publicAccessible: true,
+      },
+      { _id: 1, name: 1, thumbnail: 1 }
+    );
+
+    if (track.error) {
+      return res.status(400).send({ error: 'Error loading user playlist' });
+    }
+
+    if (track.data) {
+      return res.status(200).send({ success: 'succeed', data: track.data });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
 
 module.exports = {
   signUp,
@@ -128,4 +197,6 @@ module.exports = {
   updateAvatar,
   updateUser,
   getUser,
+  getUserTracks,
+  getUserPlaylist,
 };
