@@ -145,7 +145,6 @@ async function getUser(req, res, next) {
 }
 
 async function getAllUsers(req, res, next) {
-  // return all users in the database
   try {
     const users = await UserRepo.find({}, { _id: 1, userName: 1, profilePicture: 1 });
 
