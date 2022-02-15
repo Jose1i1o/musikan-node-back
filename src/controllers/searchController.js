@@ -26,6 +26,7 @@ async function searchTracks(req, res, next) {
                 {
                     userId: 1,
                     url: 1,
+                    name: 1,
                     thumbnail: 1,
                     genre: 1,
                     isLiked: {
