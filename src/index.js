@@ -1,8 +1,15 @@
-const app = require('./server');
+const routes = require('./server');
 const express = require('express');
 const { CONFIG } = require('./config/config');
 const connect = require('./db/connect');
-const { seedTracks, seedPlaylist, seedGenres, seedUsers  } = require('./db/seed');
+
+const app = express();
+const {
+  seedTracks,
+  seedPlaylist,
+  seedGenres,
+  seedUsers,
+} = require('./db/seed');
 
 connect().then(async function onServerInit() {
   CONFIG.development.logger.info(`DB connected`);
@@ -11,6 +18,8 @@ connect().then(async function onServerInit() {
   // await seedGenres();
   // await seedUsers();
 });
+
+app.use('/api', routes);
 
 // port
 app.listen(CONFIG.development.app.PORT, () => {
