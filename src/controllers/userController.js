@@ -165,12 +165,20 @@ async function getAllUsers(req, res, next) {
 
 async function getUserTracks(req, res, next) {
   const userId = req.params.id;
+  const ownId = req.headers._id;
 
   try {
     const track = await TrackRepo.find(
       { userId: userId },
-      { _id: 1, name: 1, thumbnail: 1, genre: 1 }
+      { _id: 1, name: 1, thumbnail: 1, genre: 1, likedBy: 1 }
     );
+
+    const likePropTracks = track.data.map((el) => {
+      if (el.likedBy.includes(ownId)) {
+        return { ...el._doc, likedBy: true };
+      }
+      return { ...el._doc, likedBy: false };
+    });
 
     if (track.error) {
       return res.status(400).send({ error: 'Error loading user tracks' });
@@ -179,7 +187,7 @@ async function getUserTracks(req, res, next) {
     if (track.data) {
       return res
         .status(200)
-        .send({ success: 'Loading user tracks succeed', data: track.data });
+        .send({ success: 'Loading user tracks succeed', data: likePropTracks });
     }
     next();
   } catch (err) {
@@ -189,6 +197,7 @@ async function getUserTracks(req, res, next) {
 
 async function getUserPlaylist(req, res, next) {
   const userId = req.params.id;
+  const ownId = req.headers._id;
 
   try {
     const track = await PlaylistRepo.find(
@@ -196,8 +205,15 @@ async function getUserPlaylist(req, res, next) {
         userId: userId,
         publicAccessible: true,
       },
-      { _id: 1, name: 1, thumbnail: 1 }
+      { _id: 1, name: 1, thumbnail: 1, followedBy: 1 }
     );
+
+    const followPropTracks = track.data.map((el) => {
+      if (el.followedBy.includes(ownId)) {
+        return { ...el._doc, followedBy: true };
+      }
+      return { ...el._doc, followedBy: false };
+    });
 
     if (track.error) {
       return res.status(400).send({ error: 'Error loading user playlist' });
@@ -206,7 +222,10 @@ async function getUserPlaylist(req, res, next) {
     if (track.data) {
       return res
         .status(200)
-        .send({ success: 'Loading user playlists succeed', data: track.data });
+        .send({
+          success: 'Loading user playlists succeed',
+          data: followPropTracks,
+        });
     }
     next();
   } catch (err) {
