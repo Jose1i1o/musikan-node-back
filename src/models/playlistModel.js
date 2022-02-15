@@ -45,6 +45,7 @@ const playlistSchema = new mongoose.Schema(
     userId: {
       type: String,
       trim: true,
+      ref: 'users'
     },
     tracks: [
       {

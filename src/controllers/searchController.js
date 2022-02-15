@@ -56,10 +56,11 @@ async function searchTracks(req, res, next) {
                     if: { $in: [_id, '$followedBy'] },
                     then: true,
                     else: false,
-                  },
-            },
+                        },
+                    },
                 }
             ).populate('userId', 'userName').sort({ followedBy: -1 })
+            console.log(playlists)
             
             const users = await db.User.find(
                 {
