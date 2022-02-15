@@ -1,6 +1,7 @@
 const db = require('../models');
 
 async function searchTracks(req, res, next) {
+    const _id = req.headers._id;
     try {
         const searchText = req.query?.q;
 
@@ -27,7 +28,13 @@ async function searchTracks(req, res, next) {
                     url: 1,
                     thumbnail: 1,
                     genre: 1,
-                    likedBy: 1,
+                    isLiked: {
+                        $cond: {
+                          if: { $in: [_id, '$likedBy'] },
+                          then: true,
+                          else: false,
+                        },
+                },
                 },
             ).sort({ likedBy: -1 });
 
@@ -43,11 +50,15 @@ async function searchTracks(req, res, next) {
                 description: 1,
                 thumbnail: 1,
                 publicAccessible: 1,
-                followedBy: 1,
+                isFollowed: {
+                  $cond: {
+                    if: { $in: [_id, '$followedBy'] },
+                    then: true,
+                    else: false,
+                  },
+            },
                 }
             ).sort({ followedBy: -1 }).lean();
-
-            // return those users that match their userName field only
 
             const users = await db.User.find(
                 {
@@ -57,7 +68,7 @@ async function searchTracks(req, res, next) {
                 },
                 {
                 userName: 1,
-                thumbnail: 1,
+                profilePicture: 1,
                 }
             ).sort({ userName: 1 }).lean();
 
