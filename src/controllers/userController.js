@@ -144,6 +144,26 @@ async function getUser(req, res, next) {
   }
 }
 
+async function getAllUsers(req, res, next) {
+  // return all users in the database
+  try {
+    const users = await UserRepo.find({}, { _id: 1, userName: 1, profilePicture: 1 });
+
+    if (users.error) {
+      return res.status(400).send({ error: 'Error loading users' });
+    }
+
+    if (users.data) {
+      return res
+        .status(200)
+        .send({ success: 'Loading users succeed', data: users.data });
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function getUserTracks(req, res, next) {
   const userId = req.params.id;
 
@@ -201,6 +221,7 @@ module.exports = {
   updateAvatar,
   updateUser,
   getUser,
+  getAllUsers,
   getUserTracks,
   getUserPlaylist,
 };

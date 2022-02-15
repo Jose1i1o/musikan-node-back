@@ -8,6 +8,9 @@ class UserRepository {
   findOne(query, options) {
     return normalizeDbQuery(db.User.findOne(query, options));
   }
+  find(query, options) {
+    return normalizeDbQuery(db.User.find(query, options));
+  }
   findOneAndUpdate(filter, update, conditions) {
     return normalizeDbQuery(
       db.User.findOneAndUpdate(filter, update, conditions)

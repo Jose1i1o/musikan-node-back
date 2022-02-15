@@ -24,6 +24,7 @@ async function searchTracks(req, res, next) {
                 ],
                 },
                 {
+                    userName: 1,
                     name: 1,
                     url: 1,
                     thumbnail: 1,
@@ -46,6 +47,7 @@ async function searchTracks(req, res, next) {
                 ],
                 },
                 {
+                userName: 1,
                 name: 1,
                 description: 1,
                 thumbnail: 1,
