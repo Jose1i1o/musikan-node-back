@@ -377,9 +377,9 @@ async function getTracksForPlaylist(req, res, next) {
         _id: 1,
         name: 1,
         thumbnail: 1,
-        genre: 0,
       }
     );
+    console.log(tracks);
     if (tracks.error) {
       return res.status(400).send({ error: 'Error loading tracks' });
     }

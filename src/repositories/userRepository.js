@@ -5,8 +5,8 @@ class UserRepository {
   create(options) {
     return normalizeDbQuery(db.User.create(options));
   }
-  findOne(query) {
-    return normalizeDbQuery(db.User.findOne(query, '-__v'));
+  findOne(query, options) {
+    return normalizeDbQuery(db.User.findOne(query, options));
   }
   findOneAndUpdate(filter, update, conditions) {
     return normalizeDbQuery(
