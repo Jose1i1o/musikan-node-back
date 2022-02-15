@@ -187,11 +187,22 @@ async function getAllPlaylists(req, res, next) {
           },
         });
         return;
-      } else {
-        return res.status(400).send({
-          error: 'The playlists have not been found, please try again',
-        });
       }
+
+      if (followed.length === 0 && owned.length === 0) {
+        res.status(200).send({
+          success: 'Playlists found',
+          data: {
+            followed: [],
+            owned: [],
+          },
+        });
+        return;
+      }
+    } else {
+      return res.status(400).send({
+        error: 'The playlists have not been found, please try again',
+      });
     }
     next();
   } catch (error) {
