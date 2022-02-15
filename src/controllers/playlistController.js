@@ -462,11 +462,10 @@ async function deletePlaylist(req, res, next) {
     const deletePlaylist = await db.Playlist.findOneAndDelete({
       _id: playlistId,
     });
-    res.status(200).send({
+    return res.status(200).send({
       success: 'Playlist deleted',
       data: deletePlaylist.name,
     });
-    return;
   } catch (error) {
     res.status(500).send({
       data: error.message,
@@ -517,10 +516,17 @@ async function orderTracks(req, res, next) {
       { tracks: orderedList },
       { new: true }
     );
+    if (updatedPlaylist.error) {
+      return res
+        .status(400)
+        .send({ error: 'The playlist could not be updated' });
+    }
 
-    return res
-      .status(200)
-      .send({ success: 'SUCCESS', data: updatedPlaylist.data.tracks });
+    if (updatedPlaylist.data) {
+      return res
+        .status(200)
+        .send({ success: 'SUCCESS', data: updatedPlaylist.data.tracks });
+    }
 
     next();
   } catch (err) {
