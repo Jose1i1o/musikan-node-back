@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
+    "dev": "env-cmd -f ./config/dev.env node server/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

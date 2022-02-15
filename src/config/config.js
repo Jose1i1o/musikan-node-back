@@ -38,7 +38,7 @@ const CONFIG = {
       debug: logger.debug,
     },
     db: {
-      url: DB_URL,
+      url: process.env.DB_URL,
     },
     firebase: {
       type: process.env.FB_TYPE,
