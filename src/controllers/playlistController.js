@@ -21,7 +21,7 @@ async function createPlaylist(req, res, next) {
 
     const thumbnailPicture = await cloudinary.uploader.upload(thumbnail, {
       resource_type: 'image',
-      folder: 'playlists',
+      folder: 'tracks-thumbnails-dev',
     });
     playlistData.thumbnail = thumbnailPicture.secure_url;
 
@@ -416,7 +416,7 @@ async function updatePlaylist(req, res, next) {
 
         const uploadNewImage = await cloudinary.uploader.upload(req.file.path, {
           resource_type: 'image',
-          folder: 'playlists',
+          folder: 'tracks-thumbnails-dev',
         });
         playlistSchema.thumbnail = uploadNewImage.secure_url;
       }
@@ -456,7 +456,7 @@ async function deletePlaylist(req, res, next) {
     if (publicId) {
       await cloudinary.uploader.destroy(publicId, {
         resource_type: 'image',
-        folder: 'playlists',
+        folder: 'tracks-thumbnails-dev',
       });
     }
     const deletePlaylist = await db.Playlist.findOneAndDelete({

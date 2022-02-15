@@ -10,7 +10,7 @@ async function uploadTrack(req, res, next) {
     // Upload audio to cloudinary
     const uploadedAudio = cloudinary.uploader.upload(req.files.track[0].path, {
       resource_type: 'video',
-      folder: 'tracks',
+      folder: 'tracks-dev',
     });
 
     // Upload thumbnail to cloudinary
@@ -18,7 +18,7 @@ async function uploadTrack(req, res, next) {
       req.files.thumbnail[0].path,
       {
         resource_type: 'image',
-        folder: 'tracks-thumbnails',
+        folder: 'tracks-thumbnails-dev',
       }
     );
 
@@ -175,7 +175,7 @@ async function editTrack(req, res, next) {
 
         const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
           resource_type: 'image',
-          folder: 'tracks-thumbnails',
+          folder: 'tracks-thumbnails-dev',
         });
 
         trackSchema.thumbnail = uploadedImage.secure_url;
