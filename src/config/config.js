@@ -25,7 +25,7 @@ dotenv.config();
 const CONFIG = {
   development: {
     app: {
-      PORT: process.env.PORT || 5000,
+      PORT: "https://musikan-node-back.herokuapp.com",
     },
     client: {
       // URL: process.env.CLIENT_URL || 'http://localhost:3000',
