@@ -24,8 +24,7 @@ async function searchTracks(req, res, next) {
                 ],
                 },
                 {
-                    userName: 1,
-                    name: 1,
+                    userId: 1,
                     url: 1,
                     thumbnail: 1,
                     genre: 1,
@@ -35,9 +34,9 @@ async function searchTracks(req, res, next) {
                           then: true,
                           else: false,
                         },
+                    },
                 },
-                },
-            ).sort({ likedBy: -1 });
+            ).populate('userId', 'userName').sort({ likedBy: -1 })
 
             const playlists = await db.Playlist.find(
                 {
@@ -47,7 +46,7 @@ async function searchTracks(req, res, next) {
                 ],
                 },
                 {
-                userName: 1,
+                userId: 1,
                 name: 1,
                 description: 1,
                 thumbnail: 1,
@@ -60,8 +59,8 @@ async function searchTracks(req, res, next) {
                   },
             },
                 }
-            ).sort({ followedBy: -1 }).lean();
-
+            ).populate('userId', 'userName').sort({ followedBy: -1 })
+            
             const users = await db.User.find(
                 {
                 $or: [
