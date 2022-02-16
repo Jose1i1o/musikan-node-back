@@ -27,36 +27,6 @@ First, you will need to clone or fork the repository into your Github account:
 
 When you have all the dependencies installed you need to create two .env files, one located in client folder, one in server folder containing the new encryption keys. Please refer to the examples below:
 
-### The server .env file need to contain the next variables:
-
-#### MongoDB Atlas settings
-
-MONGO_DB_URL_PRODUCTION = Your MongoDB Atlas connection url for producction \
-MONGO_DB_URL_DEVELOPMENT = Your MongoDB Atlas connection url for development \
-MONGO_DB_URL_TEST = Your MongoDB Atlas connection url for test
-
-#### Server settings
-PORT = 4000 \
-CLIENT_URL="http://localhost:3000"
-
-#### Firebase settings
-FB_CERT_TYPE = Your FireBase cert type\
-FB_CERT_PROJECT_ID = Your FireBase project id\
-FB_CERT_PRIVATE_KEY_ID = Your FireBase private key id\
-FB_CERT_PRIVATE_KEY = Your FireBase private key\
-FB_CERT_CLIENT_EMAIL = Your FireBase client email\
-FB_CERT_CLIENT_ID = Your FireBase client id\
-FB_CERT_AUTH_URI = Your FireBase Auth uri\
-FB_CERT_TOKEN_URI = Your FireBase token uri\
-FB_CERT_AUTH_PROVIDER_X_509_CERT_URL = Your FireBase cert auth provider x 509 cert url\
-FB_CERT_CLIENT_X_509_CERT_URL = Your FireBase cert client x 509 cert url
-
-#### Cloudinary settings
-CLOUDINARY_NAME = Your Cloudinary name\
-CLOUDINARY_API_KEY = Your Cloudinary API Key\
-CLOUDINARY_API_SECRET = Your Cloudinary API Secret
-
-
 ## 🦴 Project Structure
 Folder structure 🗂
   
