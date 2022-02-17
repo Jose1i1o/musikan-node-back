@@ -27,7 +27,9 @@ app.use(
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 app.use(
-  cors()
+  cors({
+    origin: config.development.client.URL,
+  })
 );
 
 app.use(errorMiddleware);
