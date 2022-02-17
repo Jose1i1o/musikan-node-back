@@ -2,10 +2,10 @@
   "name": "musikan-node-back",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "node src/index.js",
   "scripts": {
-    "web": "node index.js",
-    "start": "npx nodemon --exec npx babel-node src/index.js",
+    "start": "node src/index.js",
+    "dev": "npx nodemon --exec npx babel-node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -28,8 +28,5 @@
     "@babel/node": "^7.16.7",
     "@babel/preset-env": "^7.16.7",
     "nodemon": "^2.0.15"
-  },
-  "engines": {
-    "node": ">=14.0.0"
   }
 }

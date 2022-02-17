@@ -367,11 +367,10 @@ async function getTracksForPlaylist(req, res, next) {
       return track.trackId;
     });
 
-    // const filter = req.body.tracks;
     const tracks = await TrackRepo.find(
       {
         _id: { $nin: filter },
-        $or: [{ userId: userId }, { $in: [userId, '$likedBy'] }],
+        $or: [{ userId: userId }, { likedBy: { $in: userId } }],
       },
       {
         _id: 1,
@@ -379,7 +378,7 @@ async function getTracksForPlaylist(req, res, next) {
         thumbnail: 1,
       }
     );
-    console.log(tracks);
+
     if (tracks.error) {
       return res.status(400).send({ error: 'Error loading tracks' });
     }
